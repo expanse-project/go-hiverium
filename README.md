@@ -1,5 +1,7 @@
 ## Ethereum Go
 
+[![Join the chat at https://gitter.im/hiverium/go-hiverium](https://badges.gitter.im/Join%20Chat.svg)](https://gitter.im/hiverium/go-hiverium?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
+
 Ethereum Go Client, by Jeffrey Wilcke (and some other people).
 
           | Linux   | OSX | ARM | Windows | Tests
