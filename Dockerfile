@@ -1,10 +1,15 @@
 # Build Geth in a stock Go builder container
 FROM golang:1.9-alpine as builder
 
-RUN apk add --no-cache make gcc musl-dev linux-headers
+RUN apk add --no-cache make gcc musl-dev linux-headers git
 
-ADD . /go-expanse
-RUN cd /go-expanse && make gexp
+RUN git clone https://github.com/expanse-org/go-expanse.git /go-expanse
+
+WORKDIR /go-expanse
+
+RUN git checkout 'tags/v1.7.2'
+
+RUN make gexp
 
 # Pull Geth into a second stage deploy alpine container
 FROM alpine:latest
