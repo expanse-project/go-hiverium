@@ -324,8 +324,8 @@ func DefaultTestnetGenesisBlock() *Genesis {
 	return &Genesis{
 		Config:     params.TestnetChainConfig,
 		Nonce:      66,
-		ExtraData:  hexutil.MustDecode("0x3535353535353535353535353535353535353535353535353535353535353535"),
-		GasLimit:   16777216,
+		ExtraData:  hexutil.MustDecode("0x35353535353535353535353535111111353535353535353535353535353535"),
+		GasLimit:   1677721,
 		Difficulty: big.NewInt(1048576),
 		Alloc:      decodePrealloc(testnetAllocData),
 	}
@@ -363,5 +363,6 @@ func decodePrealloc(data string) GenesisAlloc {
 	for _, account := range p {
 		ga[common.BigToAddress(account.Addr)] = GenesisAccount{Balance: account.Balance}
 	}
+
 	return ga
 }
