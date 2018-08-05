@@ -363,6 +363,6 @@ func decodePrealloc(data string) GenesisAlloc {
 	for _, account := range p {
 		ga[common.BigToAddress(account.Addr)] = GenesisAccount{Balance: account.Balance}
 	}
-	fmt.Println(ga)
+
 	return ga
 }
