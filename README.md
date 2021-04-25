@@ -9,16 +9,10 @@ https://camo.githubusercontent.com/915b7be44ada53c290eb157634330494ebe3e30a/6874
 [![Travis](https://travis-ci.org/expanse-org/go-expanse.svg?branch=master)](https://travis-ci.org/expanse-org/go-expanse)
 [![Discord](https://img.shields.io/badge/discord-join%20chat-blue.svg)](https://discord.me/expanse)
 
-Automated builds are available for stable releases and the unstable master branch.
-Binary archives are published at https://gexp.expanse.tech/downloads/.
 
 ## Building the source
 
-For prerequisites and detailed build instructions please read the
-[Installation Instructions](https://github.com/expanse-org/go-expanse/wiki/Building-Expanse)
-on the wiki.
-
-Building gexp requires both a Go (version 1.9 or later) and a C compiler.
+Building gexp requires both a Go (version 1.15 or later) and a C compiler. [Go installation Instructions](https://tecadmin.net/install-go-on-ubuntu/)
 You can install them using your favourite package manager.
 Once the dependencies are installed, run
 
@@ -37,7 +31,7 @@ The go-expanse project comes with several wrappers/executables found in the `cmd
 | Command    | Description |
 |:----------:|-------------|
 | **`gexp`** | Our main Expanse CLI client. It is the entry point into the Expanse network (main-, test- or private net), capable of running as a full node (default), archive node (retaining all historical state) or a light node (retrieving data live). It can be used by other processes as a gateway into the Expanse network via JSON RPC endpoints exposed on top of HTTP, WebSocket and/or IPC transports. `gexp --help` and the [CLI Wiki page](https://github.com/expanse-org/go-expanse/wiki/Command-Line-Options) for command line options. |
-| `abigen` | Source code generator to convert Expanse contract definitions into easy to use, compile-time type-safe Go packages. It operates on plain [Expanse contract ABIs](https://github.com/expanse-org/wiki/wiki/Expanse-Contract-ABI) with expanded functionality if the contract bytecode is also available. However it also accepts Solidity source files, making development much more streamlined. Please see our [Native DApps](https://github.com/expanse-org/go-expanse/wiki/Native-DApps:-Go-bindings-to-Expanse-contracts) wiki page for details. |
+| `abigen` | Source code generator to convert Expanse contract definitions into easy to use, compile-time type-safe Go packages. It operates on plain [Expanse contract ABIs](https://github.com/expanse-org/wiki/wiki/Expanse-Contract-ABI) with expanded functionality if the contract bytecode is also available. However it also accepts Solidity source files, making development much more streamlined.
 | `bootnode` | Stripped down version of our Expanse client implementation that only takes part in the network node discovery protocol, but does not run any of the higher level application protocols. It can be used as a lightweight bootstrap node to aid in finding peers in private networks. |
 | `evm` | Developer utility version of the EVM (Expanse Virtual Machine) that is capable of running bytecode snippets within a configurable environment and execution mode. Its purpose is to allow isolated, fine-grained debugging of EVM opcodes (e.g. `evm --code 60ff60ff --debug`). |
 | `gexprpctest` | Developer utility tool to support our [ethereum/rpc-test](https://github.com/ethereum/rpc-tests) test suite which validates baseline conformity to the [Expanse JSON RPC](https://github.com/ethereum/wiki/wiki/JSON-RPC) specs. Please see the [test suite's readme](https://github.com/ethereum/rpc-tests/blob/master/README.md) for details. |
@@ -297,7 +291,7 @@ from anyone on the internet, and are grateful for even the smallest of fixes!
 
 If you'd like to contribute to go-expanse, please fork, fix, commit and send a pull request
 for the maintainers to review and merge into the main code base. If you wish to submit more
-complex changes though, please check up with the core devs first on [our gitter channel](https://gitter.im/expanse-org/go-expanse)
+complex changes though, please check up with the core devs first on [our discord channel](https://discord.gg/Ue7DwPe)
 to ensure those changes are in line with the general philosophy of the project and/or get some
 early feedback which can make both your efforts much lighter as well as our review and merge
 procedures quick and simple.
