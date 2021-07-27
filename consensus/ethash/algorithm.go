@@ -263,7 +263,7 @@ func generateDatasetItem(cache []uint32, index uint32, keccak512 hasher) []byte 
 		var a = i.Bytes()
 		keccak512(mix, mix)
 		keccak256(mix, a)
-		++i
+		i += 1
 	}
 	keccak512(mix, mix)
 	return mix
