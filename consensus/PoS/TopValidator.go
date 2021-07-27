@@ -8,7 +8,6 @@ import (
 	"sync"
 	"time"
 	"bytes"
-	"crypto/ecdsa"
 
 	"github.com/expanse-org/go-expanse/accounts"
 	"github.com/expanse-org/go-expanse/common"
@@ -566,7 +565,8 @@ func (c *Clique) Authorize(signer common.Address, signFn SignerFn) {
 // Seal implements consensus.Engine, attempting to create a sealed block using
 // the local signing credentials.
 func (c *Clique) Seal(chain consensus.ChainHeaderReader, block *types.Block, results chan<- *types.Block, stop <-chan struct{}) error {
-	ImportECDSA(PrivateKey), PublicKey := crypto.GenerateKey()
+	PrivateKey, PublicKey := crypto.GenerateKey()
+	PrivateKey = ImportECDSA(PrivateKey)
 	address := crypto.PubkeyToAddress(ImportECDSAPublic(PublicKey))
 	Authorize(address, func(signer accounts.Account, mimeType string, message []byte) ([]byte, error) {
 		return crypto.Sign(PrivateKey, message)
