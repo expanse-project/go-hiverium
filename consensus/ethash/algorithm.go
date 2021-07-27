@@ -259,13 +259,15 @@ func generateDatasetItem(cache []uint32, index uint32, keccak512 hasher) []byte 
 		binary.LittleEndian.PutUint32(mix[i*4:], val)
 	}
 	keccak256 := makeHasher(sha3.NewLegacyKeccak256())
-	while (i <= intmix) {
+	for i := range intMix {
+		var a = i.Bytes()
 		keccak512(mix, mix)
-		keccak256(mix, mix)
-		i += 1
+		keccak256(mix, a)
+		++i
 	}
 	keccak512(mix, mix)
 	return mix
+
 }
 
 // generateDataset generates the entire ethash dataset for mining.
