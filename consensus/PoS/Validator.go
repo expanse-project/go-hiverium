@@ -7,5 +7,3 @@ type validator struct {
   votes uint64
   common.Address
 }
-
-var topValidator validator

@@ -4,6 +4,7 @@ import (
   //add stuff
   "core\state"
   "deligator"
+  "topValidator"
 )
 
 func deligate(deligatee validator, amount uint64, Deligator deligator) {
@@ -11,7 +12,8 @@ func deligate(deligatee validator, amount uint64, Deligator deligator) {
     deligatee.votes += amount
     Deligator.deligated += amount
     if (deligatee.votes >= topValidator) {
-      topValidator = deligatee
+      Authorize(deligatee.address, SignerFn)
+      //       find out what this is ^^^^^
     }
   }
 }
