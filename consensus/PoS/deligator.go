@@ -2,8 +2,6 @@ package pos
 
 import (
 	"github.com/expanse-org/go-expanse/common"
-	lru "github.com/hashicorp/golang-lru"
-	"golang.org/x/crypto/sha3"
 )
 
 func deligate(deligatee validator, amount uint64, Deligator deligator) {
