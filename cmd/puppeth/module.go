@@ -25,7 +25,7 @@ import (
 	"strings"
 	"time"
 
-	"github.com/expanse-org/go-expanse/log"
+	"github.com/ethereum/go-ethereum/log"
 )
 
 var (

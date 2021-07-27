@@ -16,12 +16,12 @@
 
 // Contains wrappers for the p2p package.
 
-package gexp
+package geth
 
 import (
 	"errors"
 
-	"github.com/expanse-org/go-expanse/p2p"
+	"github.com/ethereum/go-ethereum/p2p"
 )
 
 // NodeInfo represents pi short summary of the information known about the host.

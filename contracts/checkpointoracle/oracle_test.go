@@ -27,13 +27,13 @@ import (
 	"testing"
 	"time"
 
-	"github.com/expanse-org/go-expanse/accounts/abi/bind"
-	"github.com/expanse-org/go-expanse/accounts/abi/bind/backends"
-	"github.com/expanse-org/go-expanse/common"
-	"github.com/expanse-org/go-expanse/contracts/checkpointoracle/contract"
-	"github.com/expanse-org/go-expanse/core"
-	"github.com/expanse-org/go-expanse/crypto"
-	"github.com/expanse-org/go-expanse/params"
+	"github.com/ethereum/go-ethereum/accounts/abi/bind"
+	"github.com/ethereum/go-ethereum/accounts/abi/bind/backends"
+	"github.com/ethereum/go-ethereum/common"
+	"github.com/ethereum/go-ethereum/contracts/checkpointoracle/contract"
+	"github.com/ethereum/go-ethereum/core"
+	"github.com/ethereum/go-ethereum/crypto"
+	"github.com/ethereum/go-ethereum/params"
 )
 
 var (
@@ -175,10 +175,16 @@ func TestCheckpointRegister(t *testing.T) {
 	sort.Sort(accounts)
 
 	// Deploy registrar contract
-	contractBackend := backends.NewSimulatedBackend(core.GenesisAlloc{accounts[0].addr: {Balance: big.NewInt(1000000000)}, accounts[1].addr: {Balance: big.NewInt(1000000000)}, accounts[2].addr: {Balance: big.NewInt(1000000000)}}, 10000000)
+	contractBackend := backends.NewSimulatedBackend(
+		core.GenesisAlloc{
+			accounts[0].addr: {Balance: big.NewInt(10000000000000000)},
+			accounts[1].addr: {Balance: big.NewInt(10000000000000000)},
+			accounts[2].addr: {Balance: big.NewInt(10000000000000000)},
+		}, 10000000,
+	)
 	defer contractBackend.Close()
 
-	transactOpts := bind.NewKeyedTransactor(accounts[0].key)
+	transactOpts, _ := bind.NewKeyedTransactorWithChainID(accounts[0].key, big.NewInt(1337))
 
 	// 3 trusted signers, threshold 2
 	contractAddr, _, c, err := contract.DeployCheckpointOracle(transactOpts, contractBackend, []common.Address{accounts[0].addr, accounts[1].addr, accounts[2].addr}, sectionSize, processConfirms, big.NewInt(2))

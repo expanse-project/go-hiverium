@@ -17,9 +17,9 @@
 package rawdb
 
 import (
-	"github.com/expanse-org/go-expanse/common"
-	"github.com/expanse-org/go-expanse/ethdb"
-	"github.com/expanse-org/go-expanse/log"
+	"github.com/ethereum/go-ethereum/common"
+	"github.com/ethereum/go-ethereum/ethdb"
+	"github.com/ethereum/go-ethereum/log"
 )
 
 // ReadPreimage retrieves a single preimage of the provided hash.

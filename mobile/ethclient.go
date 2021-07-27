@@ -16,13 +16,13 @@
 
 // Contains a wrapper for the Ethereum client.
 
-package gexp
+package geth
 
 import (
 	"math/big"
 
-	"github.com/expanse-org/go-expanse/core/types"
-	"github.com/expanse-org/go-expanse/ethclient"
+	"github.com/ethereum/go-ethereum/core/types"
+	"github.com/ethereum/go-ethereum/ethclient"
 )
 
 // EthereumClient provides access to the Ethereum APIs.

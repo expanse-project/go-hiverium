@@ -23,8 +23,8 @@ import (
 	"strings"
 	"sync"
 
-	"github.com/expanse-org/go-expanse/core"
-	"github.com/expanse-org/go-expanse/log"
+	"github.com/ethereum/go-ethereum/core"
+	"github.com/ethereum/go-ethereum/log"
 	"github.com/olekukonko/tablewriter"
 )
 
@@ -140,14 +140,6 @@ func (w *wizard) gatherStats(server string, pubkey []byte, client *sshClient) *s
 		}
 	} else {
 		stat.services["explorer"] = infos.Report()
-	}
-	logger.Debug("Checking for wallet availability")
-	if infos, err := checkWallet(client, w.network); err != nil {
-		if err != ErrServiceUnknown {
-			stat.services["wallet"] = map[string]string{"offline": err.Error()}
-		}
-	} else {
-		stat.services["wallet"] = infos.Report()
 	}
 	logger.Debug("Checking for faucet availability")
 	if infos, err := checkFaucet(client, w.network); err != nil {

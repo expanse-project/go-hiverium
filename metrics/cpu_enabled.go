@@ -19,7 +19,7 @@
 package metrics
 
 import (
-	"github.com/expanse-org/go-expanse/log"
+	"github.com/ethereum/go-ethereum/log"
 	"github.com/shirou/gopsutil/cpu"
 )
 
@@ -29,6 +29,10 @@ func ReadCPUStats(stats *CPUStats) {
 	timeStats, err := cpu.Times(false)
 	if err != nil {
 		log.Error("Could not read cpu stats", "err", err)
+		return
+	}
+	if len(timeStats) == 0 {
+		log.Error("Empty cpu stats")
 		return
 	}
 	// requesting all cpu times will always return an array with only one time stats entry

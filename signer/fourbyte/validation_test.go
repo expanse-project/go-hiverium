@@ -20,9 +20,9 @@ import (
 	"math/big"
 	"testing"
 
-	"github.com/expanse-org/go-expanse/common"
-	"github.com/expanse-org/go-expanse/common/hexutil"
-	"github.com/expanse-org/go-expanse/signer/core"
+	"github.com/ethereum/go-ethereum/common"
+	"github.com/ethereum/go-ethereum/common/hexutil"
+	"github.com/ethereum/go-ethereum/signer/core"
 )
 
 func mixAddr(a string) (*common.MixedcaseAddress, error) {
@@ -60,7 +60,7 @@ func dummyTxArgs(t txtestcase) *core.SendTxArgs {
 		To:       to,
 		Value:    value,
 		Nonce:    n,
-		GasPrice: gasPrice,
+		GasPrice: &gasPrice,
 		Gas:      gas,
 		Data:     data,
 		Input:    input,

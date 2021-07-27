@@ -17,7 +17,7 @@
 package vm
 
 import (
-	"github.com/expanse-org/go-expanse/params"
+	"github.com/ethereum/go-ethereum/params"
 )
 
 func minSwapStack(n int) int {

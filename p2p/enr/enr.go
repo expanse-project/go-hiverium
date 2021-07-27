@@ -40,7 +40,7 @@ import (
 	"io"
 	"sort"
 
-	"github.com/expanse-org/go-expanse/rlp"
+	"github.com/ethereum/go-ethereum/rlp"
 )
 
 const SizeLimit = 300 // maximum encoded size of a node record in bytes
@@ -50,6 +50,7 @@ var (
 	errNotSorted      = errors.New("record key/value pairs are not sorted by key")
 	errDuplicateKey   = errors.New("record contains duplicate key")
 	errIncompletePair = errors.New("record contains incomplete k/v pair")
+	errIncompleteList = errors.New("record contains less than two list elements")
 	errTooBig         = fmt.Errorf("record bigger than %d bytes", SizeLimit)
 	errEncodeUnsigned = errors.New("can't encode unsigned record")
 	errNotFound       = errors.New("no such key in record")
@@ -209,9 +210,15 @@ func decodeRecord(s *rlp.Stream) (dec Record, raw []byte, err error) {
 		return dec, raw, err
 	}
 	if err = s.Decode(&dec.signature); err != nil {
+		if err == rlp.EOL {
+			err = errIncompleteList
+		}
 		return dec, raw, err
 	}
 	if err = s.Decode(&dec.seq); err != nil {
+		if err == rlp.EOL {
+			err = errIncompleteList
+		}
 		return dec, raw, err
 	}
 	// The rest of the record contains sorted k/v pairs.

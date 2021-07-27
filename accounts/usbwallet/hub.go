@@ -23,9 +23,9 @@ import (
 	"sync/atomic"
 	"time"
 
-	"github.com/expanse-org/go-expanse/accounts"
-	"github.com/expanse-org/go-expanse/event"
-	"github.com/expanse-org/go-expanse/log"
+	"github.com/ethereum/go-ethereum/accounts"
+	"github.com/ethereum/go-ethereum/event"
+	"github.com/ethereum/go-ethereum/log"
 	"github.com/karalabe/usb"
 )
 

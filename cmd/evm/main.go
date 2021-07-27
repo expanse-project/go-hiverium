@@ -22,9 +22,9 @@ import (
 	"math/big"
 	"os"
 
-	"github.com/expanse-org/go-expanse/cmd/evm/internal/t8ntool"
-	"github.com/expanse-org/go-expanse/cmd/utils"
-	"github.com/expanse-org/go-expanse/internal/flags"
+	"github.com/ethereum/go-ethereum/cmd/evm/internal/t8ntool"
+	"github.com/ethereum/go-ethereum/cmd/utils"
+	"github.com/ethereum/go-ethereum/internal/flags"
 	"gopkg.in/urfave/cli.v1"
 )
 
@@ -129,11 +129,6 @@ var (
 		Name:  "noreturndata",
 		Usage: "disable return data output",
 	}
-	EVMInterpreterFlag = cli.StringFlag{
-		Name:  "vm.evm",
-		Usage: "External EVM configuration (default = built-in interpreter)",
-		Value: "",
-	}
 )
 
 var stateTransitionCommand = cli.Command{
@@ -149,6 +144,7 @@ var stateTransitionCommand = cli.Command{
 		t8ntool.OutputBasedir,
 		t8ntool.OutputAllocFlag,
 		t8ntool.OutputResultFlag,
+		t8ntool.OutputBodyFlag,
 		t8ntool.InputAllocFlag,
 		t8ntool.InputEnvFlag,
 		t8ntool.InputTxsFlag,
@@ -184,7 +180,6 @@ func init() {
 		DisableStackFlag,
 		DisableStorageFlag,
 		DisableReturnDataFlag,
-		EVMInterpreterFlag,
 	}
 	app.Commands = []cli.Command{
 		compileCommand,

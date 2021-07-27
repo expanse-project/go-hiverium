@@ -1,16 +1,28 @@
+# Support setting various labels on the final image
+ARG COMMIT=""
+ARG VERSION=""
+ARG BUILDNUM=""
+
 # Build Geth in a stock Go builder container
-FROM golang:1.15-alpine as builder
+FROM golang:1.16-alpine as builder
 
-RUN apk add --no-cache make gcc musl-dev linux-headers git
+RUN apk add --no-cache gcc musl-dev linux-headers git
 
-ADD . /go-expanse
-RUN cd /go-expanse && make gexp
+ADD . /go-ethereum
+RUN cd /go-ethereum && go run build/ci.go install ./cmd/geth
 
 # Pull Geth into a second stage deploy alpine container
 FROM alpine:latest
 
 RUN apk add --no-cache ca-certificates
-COPY --from=builder /go-expanse/build/bin/geth /usr/local/bin/
+COPY --from=builder /go-ethereum/build/bin/geth /usr/local/bin/
 
-EXPOSE 9656 9656 42786 42786/udp
-ENTRYPOINT ["gexp"]
+EXPOSE 8545 8546 30303 30303/udp
+ENTRYPOINT ["geth"]
+
+# Add some metadata labels to help programatic image consumption
+ARG COMMIT=""
+ARG VERSION=""
+ARG BUILDNUM=""
+
+LABEL commit="$COMMIT" version="$VERSION" buildnum="$BUILDNUM"

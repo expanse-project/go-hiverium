@@ -32,10 +32,10 @@ import (
 	"sync"
 	"time"
 
-	"github.com/expanse-org/go-expanse/common"
-	"github.com/expanse-org/go-expanse/log"
-	"github.com/expanse-org/go-expanse/p2p/enode"
-	"github.com/expanse-org/go-expanse/p2p/netutil"
+	"github.com/ethereum/go-ethereum/common"
+	"github.com/ethereum/go-ethereum/log"
+	"github.com/ethereum/go-ethereum/p2p/enode"
+	"github.com/ethereum/go-ethereum/p2p/netutil"
 )
 
 const (
@@ -76,10 +76,8 @@ type Table struct {
 	net        transport
 	refreshReq chan chan struct{}
 	initDone   chan struct{}
-
-	closeOnce sync.Once
-	closeReq  chan struct{}
-	closed    chan struct{}
+	closeReq   chan struct{}
+	closed     chan struct{}
 
 	nodeAddedHook func(*node) // for testing
 }
@@ -379,7 +377,7 @@ func (tab *Table) nextRevalidateTime() time.Duration {
 }
 
 // copyLiveNodes adds nodes from the table to the database if they have been in the table
-// longer then minTableTime.
+// longer than seedMinTableTime.
 func (tab *Table) copyLiveNodes() {
 	tab.mutex.Lock()
 	defer tab.mutex.Unlock()

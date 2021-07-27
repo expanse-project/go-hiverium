@@ -16,13 +16,13 @@
 
 // Contains perverted wrappers to allow crossing over empty interfaces.
 
-package gexp
+package geth
 
 import (
 	"errors"
 	"math/big"
 
-	"github.com/expanse-org/go-expanse/common"
+	"github.com/ethereum/go-ethereum/common"
 )
 
 // Interface represents a wrapped version of Go's interface{}, with the capacity

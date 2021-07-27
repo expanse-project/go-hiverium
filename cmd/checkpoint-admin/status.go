@@ -19,8 +19,8 @@ package main
 import (
 	"fmt"
 
-	"github.com/expanse-org/go-expanse/cmd/utils"
-	"github.com/expanse-org/go-expanse/common"
+	"github.com/ethereum/go-ethereum/cmd/utils"
+	"github.com/ethereum/go-ethereum/common"
 	"gopkg.in/urfave/cli.v1"
 )
 

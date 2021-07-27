@@ -25,13 +25,13 @@ import (
 	"regexp"
 	"strings"
 
-	"github.com/expanse-org/go-expanse/accounts/abi"
-	"github.com/expanse-org/go-expanse/accounts/abi/bind"
-	"github.com/expanse-org/go-expanse/cmd/utils"
-	"github.com/expanse-org/go-expanse/common/compiler"
-	"github.com/expanse-org/go-expanse/crypto"
-	"github.com/expanse-org/go-expanse/internal/flags"
-	"github.com/expanse-org/go-expanse/log"
+	"github.com/ethereum/go-ethereum/accounts/abi"
+	"github.com/ethereum/go-ethereum/accounts/abi/bind"
+	"github.com/ethereum/go-ethereum/cmd/utils"
+	"github.com/ethereum/go-ethereum/common/compiler"
+	"github.com/ethereum/go-ethereum/crypto"
+	"github.com/ethereum/go-ethereum/internal/flags"
+	"github.com/ethereum/go-ethereum/log"
 	"gopkg.in/urfave/cli.v1"
 )
 
@@ -45,11 +45,11 @@ var (
 	// Flags needed by abigen
 	abiFlag = cli.StringFlag{
 		Name:  "abi",
-		Usage: "Path to the Expanse contract ABI json to bind, - for STDIN",
+		Usage: "Path to the Ethereum contract ABI json to bind, - for STDIN",
 	}
 	binFlag = cli.StringFlag{
 		Name:  "bin",
-		Usage: "Path to the Expanse contract bytecode (generate deploy method)",
+		Usage: "Path to the Ethereum contract bytecode (generate deploy method)",
 	}
 	typeFlag = cli.StringFlag{
 		Name:  "type",
@@ -61,7 +61,7 @@ var (
 	}
 	solFlag = cli.StringFlag{
 		Name:  "sol",
-		Usage: "Path to the Expanse contract Solidity source to build and bind",
+		Usage: "Path to the Ethereum contract Solidity source to build and bind",
 	}
 	solcFlag = cli.StringFlag{
 		Name:  "solc",
@@ -70,7 +70,7 @@ var (
 	}
 	vyFlag = cli.StringFlag{
 		Name:  "vy",
-		Usage: "Path to the Expanse contract Vyper source to build and bind",
+		Usage: "Path to the Ethereum contract Vyper source to build and bind",
 	}
 	vyperFlag = cli.StringFlag{
 		Name:  "vyper",
@@ -96,12 +96,12 @@ var (
 	}
 	aliasFlag = cli.StringFlag{
 		Name:  "alias",
-		Usage: "Comma separated aliases for function and event renaming, e.g. foo=bar",
+		Usage: "Comma separated aliases for function and event renaming, e.g. original1=alias1, original2=alias2",
 	}
 )
 
 func init() {
-	app = flags.NewApp(gitCommit, gitDate, "expanse checkpoint helper tool")
+	app = flags.NewApp(gitCommit, gitDate, "ethereum checkpoint helper tool")
 	app.Flags = []cli.Flag{
 		abiFlag,
 		binFlag,

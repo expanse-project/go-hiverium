@@ -7,13 +7,14 @@ import (
 	"errors"
 	"math/big"
 
-	"github.com/expanse-org/go-expanse/common"
-	"github.com/expanse-org/go-expanse/common/hexutil"
-	"github.com/expanse-org/go-expanse/common/math"
+	"github.com/ethereum/go-ethereum/common"
+	"github.com/ethereum/go-ethereum/common/hexutil"
+	"github.com/ethereum/go-ethereum/common/math"
 )
 
 var _ = (*vmExecMarshaling)(nil)
 
+// MarshalJSON marshals as JSON.
 func (v vmExec) MarshalJSON() ([]byte, error) {
 	type vmExec struct {
 		Address  common.UnprefixedAddress `json:"address"  gencodec:"required"`
@@ -37,6 +38,7 @@ func (v vmExec) MarshalJSON() ([]byte, error) {
 	return json.Marshal(&enc)
 }
 
+// UnmarshalJSON unmarshals from JSON.
 func (v *vmExec) UnmarshalJSON(input []byte) error {
 	type vmExec struct {
 		Address  *common.UnprefixedAddress `json:"address"  gencodec:"required"`

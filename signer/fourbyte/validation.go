@@ -22,8 +22,8 @@ import (
 	"fmt"
 	"math/big"
 
-	"github.com/expanse-org/go-expanse/common"
-	"github.com/expanse-org/go-expanse/signer/core"
+	"github.com/ethereum/go-ethereum/common"
+	"github.com/ethereum/go-ethereum/signer/core"
 )
 
 // ValidateTransaction does a number of checks on the supplied transaction, and
@@ -49,7 +49,7 @@ func (db *Database) ValidateTransaction(selector *string, tx *core.SendTxArgs) (
 	if tx.To == nil {
 		// Contract creation should contain sufficient data to deploy a contract. A
 		// typical error is omitting sender due to some quirk in the javascript call
-		// e.g. https://github.com/expanse-org/go-expanse/issues/16106.
+		// e.g. https://github.com/ethereum/go-ethereum/issues/16106.
 		if len(data) == 0 {
 			// Prevent sending ether into black hole (show stopper)
 			if tx.Value.ToInt().Cmp(big.NewInt(0)) > 0 {
@@ -72,6 +72,16 @@ func (db *Database) ValidateTransaction(selector *string, tx *core.SendTxArgs) (
 	}
 	if bytes.Equal(tx.To.Address().Bytes(), common.Address{}.Bytes()) {
 		messages.Crit("Transaction recipient is the zero address")
+	}
+	switch {
+	case tx.GasPrice == nil && tx.MaxFeePerGas == nil:
+		messages.Crit("Neither 'gasPrice' nor 'maxFeePerGas' specified.")
+	case tx.GasPrice == nil && tx.MaxPriorityFeePerGas == nil:
+		messages.Crit("Neither 'gasPrice' nor 'maxPriorityFeePerGas' specified.")
+	case tx.GasPrice != nil && tx.MaxFeePerGas != nil:
+		messages.Crit("Both 'gasPrice' and 'maxFeePerGas' specified.")
+	case tx.GasPrice != nil && tx.MaxPriorityFeePerGas != nil:
+		messages.Crit("Both 'gasPrice' and 'maxPriorityFeePerGas' specified.")
 	}
 	// Semantic fields validated, try to make heads or tails of the call data
 	db.ValidateCallData(selector, data, messages)

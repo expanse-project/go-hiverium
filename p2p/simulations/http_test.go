@@ -29,13 +29,13 @@ import (
 	"testing"
 	"time"
 
-	"github.com/expanse-org/go-expanse/event"
-	"github.com/expanse-org/go-expanse/log"
-	"github.com/expanse-org/go-expanse/node"
-	"github.com/expanse-org/go-expanse/p2p"
-	"github.com/expanse-org/go-expanse/p2p/enode"
-	"github.com/expanse-org/go-expanse/p2p/simulations/adapters"
-	"github.com/expanse-org/go-expanse/rpc"
+	"github.com/ethereum/go-ethereum/event"
+	"github.com/ethereum/go-ethereum/log"
+	"github.com/ethereum/go-ethereum/node"
+	"github.com/ethereum/go-ethereum/p2p"
+	"github.com/ethereum/go-ethereum/p2p/enode"
+	"github.com/ethereum/go-ethereum/p2p/simulations/adapters"
+	"github.com/ethereum/go-ethereum/rpc"
 	"github.com/mattn/go-colorable"
 )
 

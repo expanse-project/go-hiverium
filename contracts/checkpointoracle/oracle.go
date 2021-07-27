@@ -23,10 +23,10 @@ import (
 	"errors"
 	"math/big"
 
-	"github.com/expanse-org/go-expanse/accounts/abi/bind"
-	"github.com/expanse-org/go-expanse/common"
-	"github.com/expanse-org/go-expanse/contracts/checkpointoracle/contract"
-	"github.com/expanse-org/go-expanse/core/types"
+	"github.com/ethereum/go-ethereum/accounts/abi/bind"
+	"github.com/ethereum/go-ethereum/common"
+	"github.com/ethereum/go-ethereum/contracts/checkpointoracle/contract"
+	"github.com/ethereum/go-ethereum/core/types"
 )
 
 // CheckpointOracle is a Go wrapper around an on-chain checkpoint oracle contract.
@@ -65,7 +65,7 @@ func (oracle *CheckpointOracle) LookupCheckpointEvents(blockLogs [][]*types.Log,
 			if err != nil {
 				continue
 			}
-			if event.Index == section && common.Hash(event.CheckpointHash) == hash {
+			if event.Index == section && event.CheckpointHash == hash {
 				votes = append(votes, event)
 			}
 		}

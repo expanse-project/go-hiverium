@@ -19,7 +19,7 @@ package core
 import (
 	"runtime"
 
-	"github.com/expanse-org/go-expanse/core/types"
+	"github.com/ethereum/go-ethereum/core/types"
 )
 
 // senderCacher is a concurrent transaction sender recoverer and cacher.

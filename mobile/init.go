@@ -16,13 +16,13 @@
 
 // Contains initialization code for the mbile library.
 
-package gexp
+package geth
 
 import (
 	"os"
 	"runtime"
 
-	"github.com/expanse-org/go-expanse/log"
+	"github.com/ethereum/go-ethereum/log"
 )
 
 func init() {

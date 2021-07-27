@@ -24,17 +24,17 @@ import (
 	"sync"
 	"time"
 
-	"github.com/expanse-org/go-expanse/common"
-	"github.com/expanse-org/go-expanse/common/mclock"
-	"github.com/expanse-org/go-expanse/core/rawdb"
-	"github.com/expanse-org/go-expanse/core/types"
-	"github.com/expanse-org/go-expanse/crypto"
-	"github.com/expanse-org/go-expanse/les/flowcontrol"
-	"github.com/expanse-org/go-expanse/log"
-	"github.com/expanse-org/go-expanse/p2p"
-	"github.com/expanse-org/go-expanse/p2p/enode"
-	"github.com/expanse-org/go-expanse/params"
-	"github.com/expanse-org/go-expanse/rlp"
+	"github.com/ethereum/go-ethereum/common"
+	"github.com/ethereum/go-ethereum/common/mclock"
+	"github.com/ethereum/go-ethereum/core/rawdb"
+	"github.com/ethereum/go-ethereum/core/types"
+	"github.com/ethereum/go-ethereum/crypto"
+	"github.com/ethereum/go-ethereum/les/flowcontrol"
+	"github.com/ethereum/go-ethereum/log"
+	"github.com/ethereum/go-ethereum/p2p"
+	"github.com/ethereum/go-ethereum/p2p/enode"
+	"github.com/ethereum/go-ethereum/params"
+	"github.com/ethereum/go-ethereum/rlp"
 )
 
 // requestBenchmark is an interface for different randomized request generators
@@ -75,9 +75,8 @@ func (b *benchmarkBlockHeaders) init(h *serverHandler, count int) error {
 func (b *benchmarkBlockHeaders) request(peer *serverPeer, index int) error {
 	if b.byHash {
 		return peer.requestHeadersByHash(0, b.hashes[index], b.amount, b.skip, b.reverse)
-	} else {
-		return peer.requestHeadersByNumber(0, uint64(b.offset+rand.Int63n(b.randMax)), b.amount, b.skip, b.reverse)
 	}
+	return peer.requestHeadersByNumber(0, uint64(b.offset+rand.Int63n(b.randMax)), b.amount, b.skip, b.reverse)
 }
 
 // benchmarkBodiesOrReceipts implements requestBenchmark
@@ -98,9 +97,8 @@ func (b *benchmarkBodiesOrReceipts) init(h *serverHandler, count int) error {
 func (b *benchmarkBodiesOrReceipts) request(peer *serverPeer, index int) error {
 	if b.receipts {
 		return peer.requestReceipts(0, []common.Hash{b.hashes[index]})
-	} else {
-		return peer.requestBodies(0, []common.Hash{b.hashes[index]})
 	}
+	return peer.requestBodies(0, []common.Hash{b.hashes[index]})
 }
 
 // benchmarkProofsOrCode implements requestBenchmark
@@ -119,9 +117,8 @@ func (b *benchmarkProofsOrCode) request(peer *serverPeer, index int) error {
 	rand.Read(key)
 	if b.code {
 		return peer.requestCode(0, []CodeReq{{BHash: b.headHash, AccKey: key}})
-	} else {
-		return peer.requestProofs(0, []ProofReq{{BHash: b.headHash, Key: key}})
 	}
+	return peer.requestProofs(0, []ProofReq{{BHash: b.headHash, Key: key}})
 }
 
 // benchmarkHelperTrie implements requestBenchmark
@@ -159,7 +156,7 @@ func (b *benchmarkHelperTrie) request(peer *serverPeer, index int) error {
 		for i := range reqs {
 			key := make([]byte, 8)
 			binary.BigEndian.PutUint64(key[:], uint64(rand.Int63n(int64(b.headNum))))
-			reqs[i] = HelperTrieReq{Type: htCanonical, TrieIdx: b.sectionCount - 1, Key: key, AuxReq: auxHeader}
+			reqs[i] = HelperTrieReq{Type: htCanonical, TrieIdx: b.sectionCount - 1, Key: key, AuxReq: htAuxHeader}
 		}
 	}
 
@@ -174,7 +171,7 @@ type benchmarkTxSend struct {
 func (b *benchmarkTxSend) init(h *serverHandler, count int) error {
 	key, _ := crypto.GenerateKey()
 	addr := crypto.PubkeyToAddress(key.PublicKey)
-	signer := types.NewEIP155Signer(big.NewInt(18))
+	signer := types.LatestSigner(h.server.chainConfig)
 	b.txs = make(types.Transactions, count)
 
 	for i := range b.txs {

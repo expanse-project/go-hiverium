@@ -20,8 +20,8 @@ import (
 	"math/big"
 	"testing"
 
-	"github.com/expanse-org/go-expanse/common"
-	"github.com/expanse-org/go-expanse/params"
+	"github.com/ethereum/go-ethereum/common"
+	"github.com/ethereum/go-ethereum/params"
 )
 
 var (
@@ -79,12 +79,12 @@ func TestDifficulty(t *testing.T) {
 	dt.config("difficulty.json", mainnetChainConfig)
 
 	dt.walk(t, difficultyTestDir, func(t *testing.T, name string, test *DifficultyTest) {
-		cfg := dt.findConfig(name)
+		cfg := dt.findConfig(t)
 		if test.ParentDifficulty.Cmp(params.MinimumDifficulty) < 0 {
 			t.Skip("difficulty below minimum")
 			return
 		}
-		if err := dt.checkFailure(t, name, test.Run(cfg)); err != nil {
+		if err := dt.checkFailure(t, test.Run(cfg)); err != nil {
 			t.Error(err)
 		}
 	})

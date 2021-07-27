@@ -22,13 +22,13 @@ import (
 	"math/big"
 	"strings"
 
-	"github.com/expanse-org/go-expanse/common"
-	"github.com/expanse-org/go-expanse/common/hexutil"
-	math2 "github.com/expanse-org/go-expanse/common/math"
-	"github.com/expanse-org/go-expanse/consensus/ethash"
-	"github.com/expanse-org/go-expanse/core"
-	"github.com/expanse-org/go-expanse/core/types"
-	"github.com/expanse-org/go-expanse/params"
+	"github.com/ethereum/go-ethereum/common"
+	"github.com/ethereum/go-ethereum/common/hexutil"
+	math2 "github.com/ethereum/go-ethereum/common/math"
+	"github.com/ethereum/go-ethereum/consensus/ethash"
+	"github.com/ethereum/go-ethereum/core"
+	"github.com/ethereum/go-ethereum/core/types"
+	"github.com/ethereum/go-ethereum/params"
 )
 
 // alethGenesisSpec represents the genesis specification format used by the
@@ -152,7 +152,7 @@ func newAlethGenesisSpec(network string, genesis *core.Genesis) (*alethGenesisSp
 	spec.Genesis.Author = genesis.Coinbase
 	spec.Genesis.Timestamp = (hexutil.Uint64)(genesis.Timestamp)
 	spec.Genesis.ParentHash = genesis.ParentHash
-	spec.Genesis.ExtraData = (hexutil.Bytes)(genesis.ExtraData)
+	spec.Genesis.ExtraData = genesis.ExtraData
 	spec.Genesis.GasLimit = (hexutil.Uint64)(genesis.GasLimit)
 
 	for address, account := range genesis.Alloc {
@@ -425,12 +425,12 @@ func newParityChainSpec(network string, genesis *core.Genesis, bootnodes []strin
 	spec.Params.EIP98Transition = math.MaxInt64
 
 	spec.Genesis.Seal.Ethereum.Nonce = types.EncodeNonce(genesis.Nonce)
-	spec.Genesis.Seal.Ethereum.MixHash = (genesis.Mixhash[:])
+	spec.Genesis.Seal.Ethereum.MixHash = genesis.Mixhash[:]
 	spec.Genesis.Difficulty = (*hexutil.Big)(genesis.Difficulty)
 	spec.Genesis.Author = genesis.Coinbase
 	spec.Genesis.Timestamp = (hexutil.Uint64)(genesis.Timestamp)
 	spec.Genesis.ParentHash = genesis.ParentHash
-	spec.Genesis.ExtraData = (hexutil.Bytes)(genesis.ExtraData)
+	spec.Genesis.ExtraData = genesis.ExtraData
 	spec.Genesis.GasLimit = (hexutil.Uint64)(genesis.GasLimit)
 
 	spec.Accounts = make(map[common.UnprefixedAddress]*parityChainSpecAccount)

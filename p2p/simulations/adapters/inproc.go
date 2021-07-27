@@ -24,13 +24,13 @@ import (
 	"net"
 	"sync"
 
-	"github.com/expanse-org/go-expanse/event"
-	"github.com/expanse-org/go-expanse/log"
-	"github.com/expanse-org/go-expanse/node"
-	"github.com/expanse-org/go-expanse/p2p"
-	"github.com/expanse-org/go-expanse/p2p/enode"
-	"github.com/expanse-org/go-expanse/p2p/simulations/pipes"
-	"github.com/expanse-org/go-expanse/rpc"
+	"github.com/ethereum/go-ethereum/event"
+	"github.com/ethereum/go-ethereum/log"
+	"github.com/ethereum/go-ethereum/node"
+	"github.com/ethereum/go-ethereum/p2p"
+	"github.com/ethereum/go-ethereum/p2p/enode"
+	"github.com/ethereum/go-ethereum/p2p/simulations/pipes"
+	"github.com/ethereum/go-ethereum/rpc"
 	"github.com/gorilla/websocket"
 )
 
@@ -99,8 +99,8 @@ func (s *SimAdapter) NewNode(config *NodeConfig) (Node, error) {
 			Dialer:          s,
 			EnableMsgEvents: config.EnableMsgEvents,
 		},
-		NoUSB:  true,
-		Logger: log.New("node.id", id.String()),
+		ExternalSigner: config.ExternalSigner,
+		Logger:         log.New("node.id", id.String()),
 	})
 	if err != nil {
 		return nil, err
@@ -263,7 +263,6 @@ func (sn *SimNode) Start(snapshots map[string][]byte) error {
 				continue
 			}
 			sn.running[name] = service
-			sn.node.RegisterLifecycle(service)
 		}
 	})
 	if regErr != nil {

@@ -22,7 +22,7 @@ import (
 	"testing"
 	"time"
 
-	"github.com/expanse-org/go-expanse/common/mclock"
+	"github.com/ethereum/go-ethereum/common/mclock"
 )
 
 const (
@@ -40,7 +40,7 @@ type lazyItem struct {
 	index   int
 }
 
-func testPriority(a interface{}, now mclock.AbsTime) int64 {
+func testPriority(a interface{}) int64 {
 	return a.(*lazyItem).p
 }
 

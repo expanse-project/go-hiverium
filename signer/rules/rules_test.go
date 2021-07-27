@@ -22,13 +22,13 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/expanse-org/go-expanse/accounts"
-	"github.com/expanse-org/go-expanse/common"
-	"github.com/expanse-org/go-expanse/common/hexutil"
-	"github.com/expanse-org/go-expanse/core/types"
-	"github.com/expanse-org/go-expanse/internal/ethapi"
-	"github.com/expanse-org/go-expanse/signer/core"
-	"github.com/expanse-org/go-expanse/signer/storage"
+	"github.com/ethereum/go-ethereum/accounts"
+	"github.com/ethereum/go-ethereum/common"
+	"github.com/ethereum/go-ethereum/common/hexutil"
+	"github.com/ethereum/go-ethereum/core/types"
+	"github.com/ethereum/go-ethereum/internal/ethapi"
+	"github.com/ethereum/go-ethereum/signer/core"
+	"github.com/ethereum/go-ethereum/signer/storage"
 )
 
 const JS = `
@@ -437,7 +437,7 @@ func dummyTx(value hexutil.Big) *core.SignTxRequest {
 			To:       to,
 			Value:    value,
 			Nonce:    n,
-			GasPrice: gasPrice,
+			GasPrice: &gasPrice,
 			Gas:      gas,
 		},
 		Callinfo: []core.ValidationInfo{

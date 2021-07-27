@@ -11,7 +11,7 @@ import (
 	"strings"
 	"time"
 
-	"github.com/expanse-org/go-expanse/log"
+	"github.com/ethereum/go-ethereum/log"
 )
 
 // Enabled is checked by the constructor functions for all of the

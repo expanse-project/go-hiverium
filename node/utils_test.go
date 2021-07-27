@@ -20,8 +20,8 @@
 package node
 
 import (
-	"github.com/expanse-org/go-expanse/p2p"
-	"github.com/expanse-org/go-expanse/rpc"
+	"github.com/ethereum/go-ethereum/p2p"
+	"github.com/ethereum/go-ethereum/rpc"
 )
 
 // NoopLifecycle is a trivial implementation of the Service interface.
@@ -82,11 +82,11 @@ func (f *FullService) Stop() error { return nil }
 
 func (f *FullService) Protocols() []p2p.Protocol {
 	return []p2p.Protocol{
-		p2p.Protocol{
+		{
 			Name:    "test1",
 			Version: uint(1),
 		},
-		p2p.Protocol{
+		{
 			Name:    "test2",
 			Version: uint(2),
 		},

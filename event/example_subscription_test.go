@@ -19,7 +19,7 @@ package event_test
 import (
 	"fmt"
 
-	"github.com/expanse-org/go-expanse/event"
+	"github.com/ethereum/go-ethereum/event"
 )
 
 func ExampleNewSubscription() {

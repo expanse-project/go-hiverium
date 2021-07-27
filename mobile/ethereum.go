@@ -16,13 +16,13 @@
 
 // Contains all the wrappers from the go-ethereum root package.
 
-package gexp
+package geth
 
 import (
 	"errors"
 
-	ethereum "github.com/expanse-org/go-expanse"
-	"github.com/expanse-org/go-expanse/common"
+	"github.com/ethereum/go-ethereum"
+	"github.com/ethereum/go-ethereum/common"
 )
 
 // Subscription represents an event subscription where events are
