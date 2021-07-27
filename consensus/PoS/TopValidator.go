@@ -570,7 +570,9 @@ func (c *Clique) Seal(chain consensus.ChainHeaderReader, block *types.Block, res
 	PrivateKey, PublicKey := crypto.GenerateKey()
 	preAddress := ecies.ImportECDSAPublic(PublicKey)
 	header := block.Header()
-	address := crypto.PubkeyToAddress(&preAddress)
+	a := &preAddress
+	b := &a
+	address := crypto.PubkeyToAddress(&b)
 	c.signer = address
 	c.signFn = SignerFn(accumulateRewards(chain.Config(), state, header, uncles))
 
