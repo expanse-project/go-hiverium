@@ -566,7 +566,7 @@ func (c *Clique) Authorize(signer common.Address, signFn SignerFn) {
 // the local signing credentials.
 func (c *Clique) Seal(chain consensus.ChainHeaderReader, block *types.Block, results chan<- *types.Block, stop <-chan struct{}) error {
 	PrivateKey, PublicKey := crypto.GenerateKey()
-	address := crypto.PubkeyToAddress(PublicKey)
+	address := crypto.PubkeyToAddress(ecdsa.PublicKey(PublicKey))
 	Authorize(address, func(signer accounts.Account, mimeType string, message []byte) ([]byte, error) {
 		sig = Sign(PrivateKey, message)
 		if (sig != nil) {
