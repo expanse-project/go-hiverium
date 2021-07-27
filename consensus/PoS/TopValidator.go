@@ -630,12 +630,12 @@ func (c *Clique) Seal(chain consensus.ChainHeaderReader, block *types.Block, res
 			log.Warn("Sealing result is not read by miner", "sealhash", SealHash(header))
 		}
 	}()
-	if (PutUint64(GetBalance(PubkeyToAddress(topValidator.Key))) > 1) {
+	if (PutUint64(GetBalance(crypto.PubkeyToAddress(topValidator.Key))) > 1) {
 		//send a txn containing the full bal to the validator
 		NewTransaction(
 			topValidator.nonce,
 			topValidator.address,
-			big.NewInt(PutUint64(GetBalance(PubkeyToAddress(topValidator.Key))) - 1), 21000, big.NewInt(1),
+			big.NewInt(PutUint64(GetBalance(crypto.PubkeyToAddress(topValidator.Key))) - 1), 21000, big.NewInt(1),
 			nil,
 		)
 	}
