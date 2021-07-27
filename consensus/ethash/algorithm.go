@@ -400,7 +400,8 @@ func hashimotoFull(dataset []uint32, hash []byte, nonce uint64) ([]byte, []byte)
 	keccak256 := makeHasher(sha3.NewLegacyKeccak256())
 	keccak512 := makeHasher(sha3.NewLegacyKeccak512())
 	b := make([]byte, 8)
-	return keccak256(keccak512(hash, binary.LittleEndian.PutUint64(b, nonce)))
+	binary.LittleEndian.PutUint64(b, nonce)
+	return keccak256(keccak512(hash, b))
 }
 
 const maxEpoch = 2048
