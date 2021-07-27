@@ -1,7 +1,5 @@
 package pos
-import(
-  "pos"
-)
+
 import (
 	"bytes"
 	"errors"
@@ -27,6 +25,7 @@ import (
 	"github.com/expanse-org/go-expanse/trie"
 	lru "github.com/hashicorp/golang-lru"
 	"golang.org/x/crypto/sha3"
+  "github.com/expanse-org/go-expanse/common"
 )
 
 const (
