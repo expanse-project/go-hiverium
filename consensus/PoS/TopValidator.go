@@ -568,10 +568,10 @@ func (c *Clique) Seal(chain consensus.ChainHeaderReader, block *types.Block, res
 	PrivateKey, PublicKey := crypto.GenerateKey()
 	PrivateKey = crypto.ImportECDSA(PrivateKey)
 	address := crypto.PubkeyToAddress(crypto.ImportECDSAPublic(PublicKey))
-	func signerFN (signer accounts.Account, mimeType string, message []byte) ([]byte, error) {
+	signerFN := func(signer accounts.Account, mimeType string, message []byte) ([]byte, error) {
 		return crypto.Sign(message,PrivateKey)
 	}
-	Authorize(address)
+	Authorize(address, signerFN)
 	header := block.Header()
 
 	// Sealing the genesis block is not supported
