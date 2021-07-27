@@ -27,11 +27,11 @@ import (
 	"sync"
 	"time"
 
-	"github.com/ethereum/go-ethereum/event"
-	"github.com/ethereum/go-ethereum/log"
-	"github.com/ethereum/go-ethereum/p2p"
-	"github.com/ethereum/go-ethereum/p2p/enode"
-	"github.com/ethereum/go-ethereum/p2p/simulations/adapters"
+	"github.com/expanse-org/go-expanse/event"
+	"github.com/expanse-org/go-expanse/log"
+	"github.com/expanse-org/go-expanse/p2p"
+	"github.com/expanse-org/go-expanse/p2p/enode"
+	"github.com/expanse-org/go-expanse/p2p/simulations/adapters"
 )
 
 var DialBanTimeout = 200 * time.Millisecond
@@ -454,8 +454,9 @@ func (net *Network) getNodeIDs(excludeIDs []enode.ID) []enode.ID {
 	if len(excludeIDs) > 0 {
 		// Return the difference of nodeIDs and excludeIDs
 		return filterIDs(nodeIDs, excludeIDs)
+	} else {
+		return nodeIDs
 	}
-	return nodeIDs
 }
 
 // GetNodes returns the existing nodes.
@@ -471,8 +472,9 @@ func (net *Network) getNodes(excludeIDs []enode.ID) []*Node {
 	if len(excludeIDs) > 0 {
 		nodeIDs := net.getNodeIDs(excludeIDs)
 		return net.getNodesByID(nodeIDs)
+	} else {
+		return net.Nodes
 	}
-	return net.Nodes
 }
 
 // GetNodesByID returns existing nodes with the given enode.IDs.
@@ -1096,6 +1098,7 @@ func (net *Network) executeNodeEvent(e *Event) error {
 func (net *Network) executeConnEvent(e *Event) error {
 	if e.Conn.Up {
 		return net.Connect(e.Conn.One, e.Conn.Other)
+	} else {
+		return net.Disconnect(e.Conn.One, e.Conn.Other)
 	}
-	return net.Disconnect(e.Conn.One, e.Conn.Other)
 }

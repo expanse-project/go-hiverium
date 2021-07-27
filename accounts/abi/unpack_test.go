@@ -26,7 +26,7 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/ethereum/go-ethereum/common"
+	"github.com/expanse-org/go-expanse/common"
 	"github.com/stretchr/testify/require"
 )
 
@@ -44,13 +44,15 @@ func TestUnpack(t *testing.T) {
 			if err != nil {
 				t.Fatalf("invalid hex %s: %v", test.packed, err)
 			}
-			out, err := abi.Unpack("method", encb)
+			outptr := reflect.New(reflect.TypeOf(test.unpacked))
+			err = abi.Unpack(outptr.Interface(), "method", encb)
 			if err != nil {
 				t.Errorf("test %d (%v) failed: %v", i, test.def, err)
 				return
 			}
-			if !reflect.DeepEqual(test.unpacked, ConvertType(out[0], test.unpacked)) {
-				t.Errorf("test %d (%v) failed: expected %v, got %v", i, test.def, test.unpacked, out[0])
+			out := outptr.Elem().Interface()
+			if !reflect.DeepEqual(test.unpacked, out) {
+				t.Errorf("test %d (%v) failed: expected %v, got %v", i, test.def, test.unpacked, out)
 			}
 		})
 	}
@@ -219,7 +221,7 @@ func TestLocalUnpackTests(t *testing.T) {
 				t.Fatalf("invalid hex %s: %v", test.enc, err)
 			}
 			outptr := reflect.New(reflect.TypeOf(test.want))
-			err = abi.UnpackIntoInterface(outptr.Interface(), "method", encb)
+			err = abi.Unpack(outptr.Interface(), "method", encb)
 			if err := test.checkError(err); err != nil {
 				t.Errorf("test %d (%v) failed: %v", i, test.def, err)
 				return
@@ -232,7 +234,7 @@ func TestLocalUnpackTests(t *testing.T) {
 	}
 }
 
-func TestUnpackIntoInterfaceSetDynamicArrayOutput(t *testing.T) {
+func TestUnpackSetDynamicArrayOutput(t *testing.T) {
 	abi, err := JSON(strings.NewReader(`[{"constant":true,"inputs":[],"name":"testDynamicFixedBytes15","outputs":[{"name":"","type":"bytes15[]"}],"payable":false,"stateMutability":"view","type":"function"},{"constant":true,"inputs":[],"name":"testDynamicFixedBytes32","outputs":[{"name":"","type":"bytes32[]"}],"payable":false,"stateMutability":"view","type":"function"}]`))
 	if err != nil {
 		t.Fatal(err)
@@ -247,7 +249,7 @@ func TestUnpackIntoInterfaceSetDynamicArrayOutput(t *testing.T) {
 	)
 
 	// test 32
-	err = abi.UnpackIntoInterface(&out32, "testDynamicFixedBytes32", marshalledReturn32)
+	err = abi.Unpack(&out32, "testDynamicFixedBytes32", marshalledReturn32)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -264,7 +266,7 @@ func TestUnpackIntoInterfaceSetDynamicArrayOutput(t *testing.T) {
 	}
 
 	// test 15
-	err = abi.UnpackIntoInterface(&out15, "testDynamicFixedBytes32", marshalledReturn15)
+	err = abi.Unpack(&out15, "testDynamicFixedBytes32", marshalledReturn15)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -365,7 +367,7 @@ func TestMethodMultiReturn(t *testing.T) {
 		tc := tc
 		t.Run(tc.name, func(t *testing.T) {
 			require := require.New(t)
-			err := abi.UnpackIntoInterface(tc.dest, "multi", data)
+			err := abi.Unpack(tc.dest, "multi", data)
 			if tc.error == "" {
 				require.Nil(err, "Should be able to unpack method outputs.")
 				require.Equal(tc.expected, tc.dest)
@@ -388,7 +390,7 @@ func TestMultiReturnWithArray(t *testing.T) {
 
 	ret1, ret1Exp := new([3]uint64), [3]uint64{9, 9, 9}
 	ret2, ret2Exp := new(uint64), uint64(8)
-	if err := abi.UnpackIntoInterface(&[]interface{}{ret1, ret2}, "multi", buff.Bytes()); err != nil {
+	if err := abi.Unpack(&[]interface{}{ret1, ret2}, "multi", buff.Bytes()); err != nil {
 		t.Fatal(err)
 	}
 	if !reflect.DeepEqual(*ret1, ret1Exp) {
@@ -412,7 +414,7 @@ func TestMultiReturnWithStringArray(t *testing.T) {
 	ret2, ret2Exp := new(common.Address), common.HexToAddress("ab1257528b3782fb40d7ed5f72e624b744dffb2f")
 	ret3, ret3Exp := new([2]string), [2]string{"Ethereum", "Hello, Ethereum!"}
 	ret4, ret4Exp := new(bool), false
-	if err := abi.UnpackIntoInterface(&[]interface{}{ret1, ret2, ret3, ret4}, "multi", buff.Bytes()); err != nil {
+	if err := abi.Unpack(&[]interface{}{ret1, ret2, ret3, ret4}, "multi", buff.Bytes()); err != nil {
 		t.Fatal(err)
 	}
 	if !reflect.DeepEqual(*ret1, ret1Exp) {
@@ -450,7 +452,7 @@ func TestMultiReturnWithStringSlice(t *testing.T) {
 	buff.Write(common.Hex2Bytes("0000000000000000000000000000000000000000000000000000000000000065")) // output[1][1] value
 	ret1, ret1Exp := new([]string), []string{"ethereum", "go-ethereum"}
 	ret2, ret2Exp := new([]*big.Int), []*big.Int{big.NewInt(100), big.NewInt(101)}
-	if err := abi.UnpackIntoInterface(&[]interface{}{ret1, ret2}, "multi", buff.Bytes()); err != nil {
+	if err := abi.Unpack(&[]interface{}{ret1, ret2}, "multi", buff.Bytes()); err != nil {
 		t.Fatal(err)
 	}
 	if !reflect.DeepEqual(*ret1, ret1Exp) {
@@ -490,7 +492,7 @@ func TestMultiReturnWithDeeplyNestedArray(t *testing.T) {
 		{{0x411, 0x412, 0x413}, {0x421, 0x422, 0x423}},
 	}
 	ret2, ret2Exp := new(uint64), uint64(0x9876)
-	if err := abi.UnpackIntoInterface(&[]interface{}{ret1, ret2}, "multi", buff.Bytes()); err != nil {
+	if err := abi.Unpack(&[]interface{}{ret1, ret2}, "multi", buff.Bytes()); err != nil {
 		t.Fatal(err)
 	}
 	if !reflect.DeepEqual(*ret1, ret1Exp) {
@@ -529,7 +531,7 @@ func TestUnmarshal(t *testing.T) {
 	buff.Write(common.Hex2Bytes("000000000000000000000000000000000000000000000000000000000000000a"))
 	buff.Write(common.Hex2Bytes("0102000000000000000000000000000000000000000000000000000000000000"))
 
-	err = abi.UnpackIntoInterface(&mixedBytes, "mixedBytes", buff.Bytes())
+	err = abi.Unpack(&mixedBytes, "mixedBytes", buff.Bytes())
 	if err != nil {
 		t.Error(err)
 	} else {
@@ -544,7 +546,7 @@ func TestUnmarshal(t *testing.T) {
 
 	// marshal int
 	var Int *big.Int
-	err = abi.UnpackIntoInterface(&Int, "int", common.Hex2Bytes("0000000000000000000000000000000000000000000000000000000000000001"))
+	err = abi.Unpack(&Int, "int", common.Hex2Bytes("0000000000000000000000000000000000000000000000000000000000000001"))
 	if err != nil {
 		t.Error(err)
 	}
@@ -555,7 +557,7 @@ func TestUnmarshal(t *testing.T) {
 
 	// marshal bool
 	var Bool bool
-	err = abi.UnpackIntoInterface(&Bool, "bool", common.Hex2Bytes("0000000000000000000000000000000000000000000000000000000000000001"))
+	err = abi.Unpack(&Bool, "bool", common.Hex2Bytes("0000000000000000000000000000000000000000000000000000000000000001"))
 	if err != nil {
 		t.Error(err)
 	}
@@ -572,7 +574,7 @@ func TestUnmarshal(t *testing.T) {
 	buff.Write(bytesOut)
 
 	var Bytes []byte
-	err = abi.UnpackIntoInterface(&Bytes, "bytes", buff.Bytes())
+	err = abi.Unpack(&Bytes, "bytes", buff.Bytes())
 	if err != nil {
 		t.Error(err)
 	}
@@ -588,7 +590,7 @@ func TestUnmarshal(t *testing.T) {
 	bytesOut = common.RightPadBytes([]byte("hello"), 64)
 	buff.Write(bytesOut)
 
-	err = abi.UnpackIntoInterface(&Bytes, "bytes", buff.Bytes())
+	err = abi.Unpack(&Bytes, "bytes", buff.Bytes())
 	if err != nil {
 		t.Error(err)
 	}
@@ -604,7 +606,7 @@ func TestUnmarshal(t *testing.T) {
 	bytesOut = common.RightPadBytes([]byte("hello"), 64)
 	buff.Write(bytesOut)
 
-	err = abi.UnpackIntoInterface(&Bytes, "bytes", buff.Bytes())
+	err = abi.Unpack(&Bytes, "bytes", buff.Bytes())
 	if err != nil {
 		t.Error(err)
 	}
@@ -614,7 +616,7 @@ func TestUnmarshal(t *testing.T) {
 	}
 
 	// marshal dynamic bytes output empty
-	err = abi.UnpackIntoInterface(&Bytes, "bytes", nil)
+	err = abi.Unpack(&Bytes, "bytes", nil)
 	if err == nil {
 		t.Error("expected error")
 	}
@@ -625,7 +627,7 @@ func TestUnmarshal(t *testing.T) {
 	buff.Write(common.Hex2Bytes("0000000000000000000000000000000000000000000000000000000000000005"))
 	buff.Write(common.RightPadBytes([]byte("hello"), 32))
 
-	err = abi.UnpackIntoInterface(&Bytes, "bytes", buff.Bytes())
+	err = abi.Unpack(&Bytes, "bytes", buff.Bytes())
 	if err != nil {
 		t.Error(err)
 	}
@@ -639,7 +641,7 @@ func TestUnmarshal(t *testing.T) {
 	buff.Write(common.RightPadBytes([]byte("hello"), 32))
 
 	var hash common.Hash
-	err = abi.UnpackIntoInterface(&hash, "fixed", buff.Bytes())
+	err = abi.Unpack(&hash, "fixed", buff.Bytes())
 	if err != nil {
 		t.Error(err)
 	}
@@ -652,12 +654,12 @@ func TestUnmarshal(t *testing.T) {
 	// marshal error
 	buff.Reset()
 	buff.Write(common.Hex2Bytes("0000000000000000000000000000000000000000000000000000000000000020"))
-	err = abi.UnpackIntoInterface(&Bytes, "bytes", buff.Bytes())
+	err = abi.Unpack(&Bytes, "bytes", buff.Bytes())
 	if err == nil {
 		t.Error("expected error")
 	}
 
-	err = abi.UnpackIntoInterface(&Bytes, "multi", make([]byte, 64))
+	err = abi.Unpack(&Bytes, "multi", make([]byte, 64))
 	if err == nil {
 		t.Error("expected error")
 	}
@@ -668,7 +670,7 @@ func TestUnmarshal(t *testing.T) {
 	buff.Write(common.Hex2Bytes("0000000000000000000000000000000000000000000000000000000000000003"))
 	// marshal int array
 	var intArray [3]*big.Int
-	err = abi.UnpackIntoInterface(&intArray, "intArraySingle", buff.Bytes())
+	err = abi.Unpack(&intArray, "intArraySingle", buff.Bytes())
 	if err != nil {
 		t.Error(err)
 	}
@@ -689,7 +691,7 @@ func TestUnmarshal(t *testing.T) {
 	buff.Write(common.Hex2Bytes("0000000000000000000000000100000000000000000000000000000000000000"))
 
 	var outAddr []common.Address
-	err = abi.UnpackIntoInterface(&outAddr, "addressSliceSingle", buff.Bytes())
+	err = abi.Unpack(&outAddr, "addressSliceSingle", buff.Bytes())
 	if err != nil {
 		t.Fatal("didn't expect error:", err)
 	}
@@ -716,7 +718,7 @@ func TestUnmarshal(t *testing.T) {
 		A []common.Address
 		B []common.Address
 	}
-	err = abi.UnpackIntoInterface(&outAddrStruct, "addressSliceDouble", buff.Bytes())
+	err = abi.Unpack(&outAddrStruct, "addressSliceDouble", buff.Bytes())
 	if err != nil {
 		t.Fatal("didn't expect error:", err)
 	}
@@ -744,7 +746,7 @@ func TestUnmarshal(t *testing.T) {
 	buff.Reset()
 	buff.Write(common.Hex2Bytes("0000000000000000000000000000000000000000000000000000000000000100"))
 
-	err = abi.UnpackIntoInterface(&outAddr, "addressSliceSingle", buff.Bytes())
+	err = abi.Unpack(&outAddr, "addressSliceSingle", buff.Bytes())
 	if err == nil {
 		t.Fatal("expected error:", err)
 	}
@@ -767,7 +769,7 @@ func TestUnpackTuple(t *testing.T) {
 		B *big.Int
 	}{new(big.Int), new(big.Int)}
 
-	err = abi.UnpackIntoInterface(&v, "tuple", buff.Bytes())
+	err = abi.Unpack(&v, "tuple", buff.Bytes())
 	if err != nil {
 		t.Error(err)
 	} else {
@@ -839,7 +841,7 @@ func TestUnpackTuple(t *testing.T) {
 		A: big.NewInt(1),
 	}
 
-	err = abi.UnpackIntoInterface(&ret, "tuple", buff.Bytes())
+	err = abi.Unpack(&ret, "tuple", buff.Bytes())
 	if err != nil {
 		t.Error(err)
 	}

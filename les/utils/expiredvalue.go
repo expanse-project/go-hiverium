@@ -18,9 +18,8 @@ package utils
 
 import (
 	"math"
-	"sync"
 
-	"github.com/ethereum/go-ethereum/common/mclock"
+	"github.com/expanse-org/go-expanse/common/mclock"
 )
 
 // ExpiredValue is a scalar value that is continuously expired (decreased
@@ -86,15 +85,10 @@ func (e *ExpiredValue) Add(amount int64, logOffset Fixed64) int64 {
 		e.Exp = integer
 	}
 	if base >= 0 || uint64(-base) <= e.Base {
-		// The conversion from negative float64 to
-		// uint64 is undefined in golang, and doesn't
-		// work with ARMv8. More details at:
-		// https://github.com/golang/go/issues/43047
-		if base >= 0 {
-			e.Base += uint64(base)
-		} else {
-			e.Base -= uint64(-base)
-		}
+		// This is a temporary fix to circumvent a golang
+		// uint conversion issue on arm64, which needs to
+		// be investigated further. FIXME
+		e.Base = uint64(int64(e.Base) + int64(base))
 		return amount
 	}
 	net := int64(-float64(e.Base) / factor)
@@ -128,11 +122,6 @@ func (e *ExpiredValue) SubExp(a ExpiredValue) {
 	} else {
 		e.Base = 0
 	}
-}
-
-// IsZero returns true if the value is zero
-func (e *ExpiredValue) IsZero() bool {
-	return e.Base == 0
 }
 
 // LinearExpiredValue is very similar with the expiredValue which the value
@@ -179,20 +168,12 @@ func (e *LinearExpiredValue) Add(amount int64, now mclock.AbsTime) uint64 {
 	return e.Val
 }
 
-// ValueExpirer controls value expiration rate
-type ValueExpirer interface {
-	SetRate(now mclock.AbsTime, rate float64)
-	SetLogOffset(now mclock.AbsTime, logOffset Fixed64)
-	LogOffset(now mclock.AbsTime) Fixed64
-}
-
 // Expirer changes logOffset with a linear rate which can be changed during operation.
 // It is not thread safe, if access by multiple goroutines is needed then it should be
 // encapsulated into a locked structure.
 // Note that if neither SetRate nor SetLogOffset are used during operation then LogOffset
 // is thread safe.
 type Expirer struct {
-	lock       sync.RWMutex
 	logOffset  Fixed64
 	rate       float64
 	lastUpdate mclock.AbsTime
@@ -201,9 +182,6 @@ type Expirer struct {
 // SetRate changes the expiration rate which is the inverse of the time constant in
 // nanoseconds.
 func (e *Expirer) SetRate(now mclock.AbsTime, rate float64) {
-	e.lock.Lock()
-	defer e.lock.Unlock()
-
 	dt := now - e.lastUpdate
 	if dt > 0 {
 		e.logOffset += Fixed64(logToFixedFactor * float64(dt) * e.rate)
@@ -214,18 +192,12 @@ func (e *Expirer) SetRate(now mclock.AbsTime, rate float64) {
 
 // SetLogOffset sets logOffset instantly.
 func (e *Expirer) SetLogOffset(now mclock.AbsTime, logOffset Fixed64) {
-	e.lock.Lock()
-	defer e.lock.Unlock()
-
 	e.lastUpdate = now
 	e.logOffset = logOffset
 }
 
 // LogOffset returns the current logarithmic offset.
 func (e *Expirer) LogOffset(now mclock.AbsTime) Fixed64 {
-	e.lock.RLock()
-	defer e.lock.RUnlock()
-
 	dt := now - e.lastUpdate
 	if dt <= 0 {
 		return e.logOffset

@@ -25,9 +25,9 @@ import (
 	"sync/atomic"
 	"time"
 
-	"github.com/ethereum/go-ethereum/event"
-	"github.com/ethereum/go-ethereum/p2p/enode"
-	"github.com/ethereum/go-ethereum/rlp"
+	"github.com/expanse-org/go-expanse/event"
+	"github.com/expanse-org/go-expanse/p2p/enode"
+	"github.com/expanse-org/go-expanse/rlp"
 )
 
 // Msg defines the structure of a p2p message.
@@ -68,10 +68,6 @@ func (msg Msg) String() string {
 func (msg Msg) Discard() error {
 	_, err := io.Copy(ioutil.Discard, msg.Payload)
 	return err
-}
-
-func (msg Msg) Time() time.Time {
-	return msg.ReceivedAt
 }
 
 type MsgReader interface {

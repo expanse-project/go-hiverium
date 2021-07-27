@@ -18,20 +18,24 @@ package les
 
 import (
 	"context"
-	"math/rand"
 	"sync"
 
-	"github.com/ethereum/go-ethereum/common"
-	"github.com/ethereum/go-ethereum/core/types"
-	"github.com/ethereum/go-ethereum/rlp"
+	"github.com/expanse-org/go-expanse/common"
+	"github.com/expanse-org/go-expanse/core/types"
+	"github.com/expanse-org/go-expanse/rlp"
 )
 
+type ltrInfo struct {
+	tx     *types.Transaction
+	sentTo map[*serverPeer]struct{}
+}
+
 type lesTxRelay struct {
-	txSent       map[common.Hash]*types.Transaction
+	txSent       map[common.Hash]*ltrInfo
 	txPending    map[common.Hash]struct{}
 	peerList     []*serverPeer
 	peerStartPos int
-	lock         sync.Mutex
+	lock         sync.RWMutex
 	stop         chan struct{}
 
 	retriever *retrieveManager
@@ -39,7 +43,7 @@ type lesTxRelay struct {
 
 func newLesTxRelay(ps *serverPeerSet, retriever *retrieveManager) *lesTxRelay {
 	r := &lesTxRelay{
-		txSent:    make(map[common.Hash]*types.Transaction),
+		txSent:    make(map[common.Hash]*ltrInfo),
 		txPending: make(map[common.Hash]struct{}),
 		retriever: retriever,
 		stop:      make(chan struct{}),
@@ -76,7 +80,8 @@ func (ltrx *lesTxRelay) unregisterPeer(p *serverPeer) {
 	}
 }
 
-// send sends a list of transactions to at most a given number of peers.
+// send sends a list of transactions to at most a given number of peers at
+// once, never resending any particular transaction to the same peer twice
 func (ltrx *lesTxRelay) send(txs types.Transactions, count int) {
 	sendTo := make(map[*serverPeer]types.Transactions)
 
@@ -87,18 +92,26 @@ func (ltrx *lesTxRelay) send(txs types.Transactions, count int) {
 
 	for _, tx := range txs {
 		hash := tx.Hash()
-		_, ok := ltrx.txSent[hash]
+		ltr, ok := ltrx.txSent[hash]
 		if !ok {
-			ltrx.txSent[hash] = tx
+			ltr = &ltrInfo{
+				tx:     tx,
+				sentTo: make(map[*serverPeer]struct{}),
+			}
+			ltrx.txSent[hash] = ltr
 			ltrx.txPending[hash] = struct{}{}
 		}
+
 		if len(ltrx.peerList) > 0 {
 			cnt := count
 			pos := ltrx.peerStartPos
 			for {
 				peer := ltrx.peerList[pos]
-				sendTo[peer] = append(sendTo[peer], tx)
-				cnt--
+				if _, ok := ltr.sentTo[peer]; !ok {
+					sendTo[peer] = append(sendTo[peer], tx)
+					ltr.sentTo[peer] = struct{}{}
+					cnt--
+				}
 				if cnt == 0 {
 					break // sent it to the desired number of peers
 				}
@@ -118,7 +131,7 @@ func (ltrx *lesTxRelay) send(txs types.Transactions, count int) {
 		ll := list
 		enc, _ := rlp.EncodeToBytes(ll)
 
-		reqID := rand.Uint64()
+		reqID := genReqID()
 		rq := &distReq{
 			getCost: func(dp distPeer) uint64 {
 				peer := dp.(*serverPeer)
@@ -161,7 +174,7 @@ func (ltrx *lesTxRelay) NewHead(head common.Hash, mined []common.Hash, rollback 
 		txs := make(types.Transactions, len(ltrx.txPending))
 		i := 0
 		for hash := range ltrx.txPending {
-			txs[i] = ltrx.txSent[hash]
+			txs[i] = ltrx.txSent[hash].tx
 			i++
 		}
 		ltrx.send(txs, 1)

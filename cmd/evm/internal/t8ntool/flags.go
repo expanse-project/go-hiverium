@@ -20,8 +20,8 @@ import (
 	"fmt"
 	"strings"
 
-	"github.com/ethereum/go-ethereum/core/vm"
-	"github.com/ethereum/go-ethereum/tests"
+	"github.com/expanse-org/go-expanse/core/vm"
+	"github.com/expanse-org/go-expanse/tests"
 	"gopkg.in/urfave/cli.v1"
 )
 
@@ -45,11 +45,6 @@ var (
 	OutputBasedir = cli.StringFlag{
 		Name:  "output.basedir",
 		Usage: "Specifies where output files are placed. Will be created if it does not exist.",
-		Value: "",
-	}
-	OutputBodyFlag = cli.StringFlag{
-		Name:  "output.body",
-		Usage: "If set, the RLP of the transactions (block body) will be written to this file.",
 		Value: "",
 	}
 	OutputAllocFlag = cli.StringFlag{

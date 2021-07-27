@@ -21,11 +21,11 @@ import (
 	"testing"
 	"time"
 
-	"github.com/ethereum/go-ethereum/consensus/ethash"
-	"github.com/ethereum/go-ethereum/core"
-	"github.com/ethereum/go-ethereum/core/rawdb"
-	"github.com/ethereum/go-ethereum/core/types"
-	"github.com/ethereum/go-ethereum/p2p/enode"
+	"github.com/expanse-org/go-expanse/consensus/ethash"
+	"github.com/expanse-org/go-expanse/core"
+	"github.com/expanse-org/go-expanse/core/rawdb"
+	"github.com/expanse-org/go-expanse/core/types"
+	"github.com/expanse-org/go-expanse/p2p/enode"
 )
 
 // verifyImportEvent verifies that one single event arrive on an import channel.
@@ -66,12 +66,7 @@ func TestSequentialAnnouncementsLes2(t *testing.T) { testSequentialAnnouncements
 func TestSequentialAnnouncementsLes3(t *testing.T) { testSequentialAnnouncements(t, 3) }
 
 func testSequentialAnnouncements(t *testing.T, protocol int) {
-	netconfig := testnetConfig{
-		blocks:    4,
-		protocol:  protocol,
-		nopruning: true,
-	}
-	s, c, teardown := newClientServerEnv(t, netconfig)
+	s, c, teardown := newClientServerEnv(t, 4, protocol, nil, nil, 0, false, false, true)
 	defer teardown()
 
 	// Create connected peer pair.
@@ -106,12 +101,7 @@ func TestGappedAnnouncementsLes2(t *testing.T) { testGappedAnnouncements(t, 2) }
 func TestGappedAnnouncementsLes3(t *testing.T) { testGappedAnnouncements(t, 3) }
 
 func testGappedAnnouncements(t *testing.T, protocol int) {
-	netconfig := testnetConfig{
-		blocks:    4,
-		protocol:  protocol,
-		nopruning: true,
-	}
-	s, c, teardown := newClientServerEnv(t, netconfig)
+	s, c, teardown := newClientServerEnv(t, 4, protocol, nil, nil, 0, false, false, true)
 	defer teardown()
 
 	// Create connected peer pair.
@@ -193,13 +183,7 @@ func testTrustedAnnouncement(t *testing.T, protocol int) {
 			ids = append(ids, n.String())
 		}
 	}
-	netconfig := testnetConfig{
-		protocol:    protocol,
-		nopruning:   true,
-		ulcServers:  ids,
-		ulcFraction: 60,
-	}
-	_, c, teardown := newClientServerEnv(t, netconfig)
+	_, c, teardown := newClientServerEnv(t, 0, protocol, nil, ids, 60, false, false, true)
 	defer teardown()
 	defer func() {
 		for i := 0; i < len(teardowns); i++ {
@@ -249,17 +233,8 @@ func testTrustedAnnouncement(t *testing.T, protocol int) {
 	check([]uint64{10}, 10, func() { <-newHead }) // Sync the whole chain.
 }
 
-func TestInvalidAnnouncesLES2(t *testing.T) { testInvalidAnnounces(t, lpv2) }
-func TestInvalidAnnouncesLES3(t *testing.T) { testInvalidAnnounces(t, lpv3) }
-func TestInvalidAnnouncesLES4(t *testing.T) { testInvalidAnnounces(t, lpv4) }
-
-func testInvalidAnnounces(t *testing.T, protocol int) {
-	netconfig := testnetConfig{
-		blocks:    4,
-		protocol:  protocol,
-		nopruning: true,
-	}
-	s, c, teardown := newClientServerEnv(t, netconfig)
+func TestInvalidAnnounces(t *testing.T) {
+	s, c, teardown := newClientServerEnv(t, 4, lpv3, nil, nil, 0, false, false, true)
 	defer teardown()
 
 	// Create connected peer pair.

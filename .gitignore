@@ -21,12 +21,13 @@ build/_vendor/pkg
 *~
 .project
 .settings
+.idea/
 
 # used by the Makefile
 /build/_workspace/
 /build/cache/
 /build/bin/
-/geth*.zip
+/gexp*.zip
 
 # travis
 profile.tmp

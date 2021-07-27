@@ -24,26 +24,27 @@ import (
 	"fmt"
 	"math/big"
 	"net/http"
+	"regexp"
 	"runtime"
 	"strconv"
 	"strings"
 	"sync"
 	"time"
 
-	"github.com/ethereum/go-ethereum/common"
-	"github.com/ethereum/go-ethereum/common/mclock"
-	"github.com/ethereum/go-ethereum/consensus"
-	"github.com/ethereum/go-ethereum/core"
-	"github.com/ethereum/go-ethereum/core/types"
-	"github.com/ethereum/go-ethereum/eth/downloader"
-	ethproto "github.com/ethereum/go-ethereum/eth/protocols/eth"
-	"github.com/ethereum/go-ethereum/event"
-	"github.com/ethereum/go-ethereum/les"
-	"github.com/ethereum/go-ethereum/log"
-	"github.com/ethereum/go-ethereum/miner"
-	"github.com/ethereum/go-ethereum/node"
-	"github.com/ethereum/go-ethereum/p2p"
-	"github.com/ethereum/go-ethereum/rpc"
+	"github.com/expanse-org/go-expanse/common"
+	"github.com/expanse-org/go-expanse/common/mclock"
+	"github.com/expanse-org/go-expanse/consensus"
+	"github.com/expanse-org/go-expanse/core"
+	"github.com/expanse-org/go-expanse/core/types"
+	"github.com/expanse-org/go-expanse/eth"
+	"github.com/expanse-org/go-expanse/eth/downloader"
+	"github.com/expanse-org/go-expanse/event"
+	"github.com/expanse-org/go-expanse/les"
+	"github.com/expanse-org/go-expanse/log"
+	"github.com/expanse-org/go-expanse/miner"
+	"github.com/expanse-org/go-expanse/node"
+	"github.com/expanse-org/go-expanse/p2p"
+	"github.com/expanse-org/go-expanse/rpc"
 	"github.com/gorilla/websocket"
 )
 
@@ -77,7 +78,7 @@ type fullNodeBackend interface {
 	Miner() *miner.Miner
 	BlockByNumber(ctx context.Context, number rpc.BlockNumber) (*types.Block, error)
 	CurrentBlock() *types.Block
-	SuggestGasTipCap(ctx context.Context) (*big.Int, error)
+	SuggestPrice(ctx context.Context) (*big.Int, error)
 }
 
 // Service implements an Ethereum netstats reporting daemon that pushes local
@@ -94,8 +95,6 @@ type Service struct {
 	pongCh chan struct{} // Pong notifications are fed into this channel
 	histCh chan []uint64 // History request block numbers are fed into this channel
 
-	headSub event.Subscription
-	txSub   event.Subscription
 }
 
 // connWrapper is a wrapper to prevent concurrent-write or concurrent-read on the
@@ -143,43 +142,21 @@ func (w *connWrapper) Close() error {
 	return w.conn.Close()
 }
 
-// parseEthstatsURL parses the netstats connection url.
-// URL argument should be of the form <nodename:secret@host:port>
-// If non-erroring, the returned slice contains 3 elements: [nodename, pass, host]
-func parseEthstatsURL(url string) (parts []string, err error) {
-	err = fmt.Errorf("invalid netstats url: \"%s\", should be nodename:secret@host:port", url)
-
-	hostIndex := strings.LastIndex(url, "@")
-	if hostIndex == -1 || hostIndex == len(url)-1 {
-		return nil, err
-	}
-	preHost, host := url[:hostIndex], url[hostIndex+1:]
-
-	passIndex := strings.LastIndex(preHost, ":")
-	if passIndex == -1 {
-		return []string{preHost, "", host}, nil
-	}
-	nodename, pass := preHost[:passIndex], ""
-	if passIndex != len(preHost)-1 {
-		pass = preHost[passIndex+1:]
-	}
-
-	return []string{nodename, pass, host}, nil
-}
-
 // New returns a monitoring service ready for stats reporting.
 func New(node *node.Node, backend backend, engine consensus.Engine, url string) error {
-	parts, err := parseEthstatsURL(url)
-	if err != nil {
-		return err
+	// Parse the netstats connection url
+	re := regexp.MustCompile("([^:@]*)(:([^@]*))?@(.+)")
+	parts := re.FindStringSubmatch(url)
+	if len(parts) != 5 {
+		return fmt.Errorf("invalid netstats url: \"%s\", should be nodename:secret@host:port", url)
 	}
 	ethstats := &Service{
 		backend: backend,
 		engine:  engine,
 		server:  node.Server(),
-		node:    parts[0],
-		pass:    parts[1],
-		host:    parts[2],
+		node:    parts[1],
+		pass:    parts[3],
+		host:    parts[4],
 		pongCh:  make(chan struct{}),
 		histCh:  make(chan []uint64, 1),
 	}
@@ -190,12 +167,7 @@ func New(node *node.Node, backend backend, engine consensus.Engine, url string) 
 
 // Start implements node.Lifecycle, starting up the monitoring and reporting daemon.
 func (s *Service) Start() error {
-	// Subscribe to chain events to execute updates on
-	chainHeadCh := make(chan core.ChainHeadEvent, chainHeadChanSize)
-	s.headSub = s.backend.SubscribeChainHeadEvent(chainHeadCh)
-	txEventCh := make(chan core.NewTxsEvent, txChanSize)
-	s.txSub = s.backend.SubscribeNewTxsEvent(txEventCh)
-	go s.loop(chainHeadCh, txEventCh)
+	go s.loop()
 
 	log.Info("Stats daemon started")
 	return nil
@@ -203,15 +175,22 @@ func (s *Service) Start() error {
 
 // Stop implements node.Lifecycle, terminating the monitoring and reporting daemon.
 func (s *Service) Stop() error {
-	s.headSub.Unsubscribe()
-	s.txSub.Unsubscribe()
 	log.Info("Stats daemon stopped")
 	return nil
 }
 
 // loop keeps trying to connect to the netstats server, reporting chain events
 // until termination.
-func (s *Service) loop(chainHeadCh chan core.ChainHeadEvent, txEventCh chan core.NewTxsEvent) {
+func (s *Service) loop() {
+	// Subscribe to chain events to execute updates on
+	chainHeadCh := make(chan core.ChainHeadEvent, chainHeadChanSize)
+	headSub := s.backend.SubscribeChainHeadEvent(chainHeadCh)
+	defer headSub.Unsubscribe()
+
+	txEventCh := make(chan core.NewTxsEvent, txChanSize)
+	txSub := s.backend.SubscribeNewTxsEvent(txEventCh)
+	defer txSub.Unsubscribe()
+
 	// Start a goroutine that exhausts the subscriptions to avoid events piling up
 	var (
 		quitCh = make(chan struct{})
@@ -244,9 +223,9 @@ func (s *Service) loop(chainHeadCh chan core.ChainHeadEvent, txEventCh chan core
 				}
 
 			// node stopped
-			case <-s.txSub.Err():
+			case <-txSub.Err():
 				break HandleLoop
-			case <-s.headSub.Err():
+			case <-headSub.Err():
 				break HandleLoop
 			}
 		}
@@ -353,7 +332,7 @@ func (s *Service) loop(chainHeadCh chan core.ChainHeadEvent, txEventCh chan core
 // it, if they themselves are requests it initiates a reply, and lastly it drops
 // unknown packets.
 func (s *Service) readLoop(conn *connWrapper) {
-	// If the read loop exits, close the connection
+	// If the read loop exists, close the connection
 	defer conn.Close()
 
 	for {
@@ -465,15 +444,13 @@ func (s *Service) login(conn *connWrapper) error {
 	// Construct and send the login authentication
 	infos := s.server.NodeInfo()
 
-	var protocols []string
-	for _, proto := range s.server.Protocols {
-		protocols = append(protocols, fmt.Sprintf("%s/%d", proto.Name, proto.Version))
-	}
-	var network string
-	if info := infos.Protocols["eth"]; info != nil {
-		network = fmt.Sprintf("%d", info.(*ethproto.NodeInfo).Network)
+	var network, protocol string
+	if info := infos.Protocols["exp"]; info != nil {
+		network = fmt.Sprintf("%d", info.(*eth.NodeInfo).Network)
+		protocol = fmt.Sprintf("exp/%d", eth.ProtocolVersions[0])
 	} else {
 		network = fmt.Sprintf("%d", infos.Protocols["les"].(*les.NodeInfo).Network)
+		protocol = fmt.Sprintf("les/%d", les.ClientProtocolVersions[0])
 	}
 	auth := &authMsg{
 		ID: s.node,
@@ -482,7 +459,7 @@ func (s *Service) login(conn *connWrapper) error {
 			Node:     infos.Name,
 			Port:     infos.Ports.Listener,
 			Network:  network,
-			Protocol: strings.Join(protocols, ", "),
+			Protocol: protocol,
 			API:      "No",
 			Os:       runtime.GOOS,
 			OsVer:    runtime.GOARCH,
@@ -775,16 +752,13 @@ func (s *Service) reportStats(conn *connWrapper) error {
 	fullBackend, ok := s.backend.(fullNodeBackend)
 	if ok {
 		mining = fullBackend.Miner().Mining()
-		hashrate = int(fullBackend.Miner().Hashrate())
+		hashrate = int(fullBackend.Miner().HashRate())
 
 		sync := fullBackend.Downloader().Progress()
 		syncing = fullBackend.CurrentHeader().Number.Uint64() >= sync.HighestBlock
 
-		price, _ := fullBackend.SuggestGasTipCap(context.Background())
+		price, _ := fullBackend.SuggestPrice(context.Background())
 		gasprice = int(price.Uint64())
-		if basefee := fullBackend.CurrentHeader().BaseFee; basefee != nil {
-			gasprice += int(basefee.Uint64())
-		}
 	} else {
 		sync := s.backend.Downloader().Progress()
 		syncing = s.backend.CurrentHeader().Number.Uint64() >= sync.HighestBlock

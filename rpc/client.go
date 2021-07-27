@@ -28,7 +28,7 @@ import (
 	"sync/atomic"
 	"time"
 
-	"github.com/ethereum/go-ethereum/log"
+	"github.com/expanse-org/go-expanse/log"
 )
 
 var (
@@ -404,8 +404,9 @@ func (c *Client) Notify(ctx context.Context, method string, args ...interface{})
 
 	if c.isHTTP {
 		return c.sendHTTP(ctx, op, msg)
+	} else {
+		return c.send(ctx, op, msg)
 	}
-	return c.send(ctx, op, msg)
 }
 
 // EthSubscribe registers a subscripion under the "eth" namespace.
@@ -414,7 +415,6 @@ func (c *Client) EthSubscribe(ctx context.Context, channel interface{}, args ...
 }
 
 // ShhSubscribe registers a subscripion under the "shh" namespace.
-// Deprecated: use Subscribe(ctx, "shh", ...).
 func (c *Client) ShhSubscribe(ctx context.Context, channel interface{}, args ...interface{}) (*ClientSubscription, error) {
 	return c.Subscribe(ctx, "shh", channel, args...)
 }

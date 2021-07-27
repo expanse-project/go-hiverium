@@ -20,7 +20,7 @@ packages. To set this up yourself, you need to create a Launchpad user and add a
 and SSH key to it. Then encode both keys as base64 and configure 'secret' environment
 variables `PPA_SIGNING_KEY` and `PPA_SSH_KEY` on Travis.
 
-We want to build go-ethereum with the most recent version of Go, irrespective of the Go
+We want to build go-expanse with the most recent version of Go, irrespective of the Go
 version that is available in the main Ubuntu repository. In order to make this possible,
 we bundle the entire Go sources into our own source archive and start the built job by
 compiling Go and then using that to build go-ethereum. On Trusty we have a special case
@@ -41,10 +41,10 @@ Create the source packages:
 
 Then go into the source package directory for your running distribution and build the package:
 
-    $ cd dist/ethereum-unstable-1.9.6+bionic
+    $ cd dist/expanse-unstable-1.9.6+bionic
     $ dpkg-buildpackage
 
 Built packages are placed in the dist/ directory.
 
     $ cd ..
-    $ dpkg-deb -c geth-unstable_1.9.6+bionic_amd64.deb
+    $ dpkg-deb -c gexp-unstable_1.9.6+bionic_amd64.deb

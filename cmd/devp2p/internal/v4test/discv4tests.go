@@ -21,11 +21,12 @@ import (
 	"crypto/rand"
 	"fmt"
 	"net"
+	"reflect"
 	"time"
 
-	"github.com/ethereum/go-ethereum/crypto"
-	"github.com/ethereum/go-ethereum/internal/utesting"
-	"github.com/ethereum/go-ethereum/p2p/discover/v4wire"
+	"github.com/expanse-org/go-expanse/crypto"
+	"github.com/expanse-org/go-expanse/internal/utesting"
+	"github.com/expanse-org/go-expanse/p2p/discover/v4wire"
 )
 
 const (
@@ -88,18 +89,16 @@ func BasicPing(t *utesting.T) {
 
 // checkPong verifies that reply is a valid PONG matching the given ping hash.
 func (te *testenv) checkPong(reply v4wire.Packet, pingHash []byte) error {
-	if reply == nil {
-		return fmt.Errorf("expected PONG reply, got nil")
-	}
-	if reply.Kind() != v4wire.PongPacket {
-		return fmt.Errorf("expected PONG reply, got %v %v", reply.Name(), reply)
+	if reply == nil || reply.Kind() != v4wire.PongPacket {
+		return fmt.Errorf("expected PONG reply, got %v", reply)
 	}
 	pong := reply.(*v4wire.Pong)
 	if !bytes.Equal(pong.ReplyTok, pingHash) {
 		return fmt.Errorf("PONG reply token mismatch: got %x, want %x", pong.ReplyTok, pingHash)
 	}
-	if want := te.localEndpoint(te.l1); !want.IP.Equal(pong.To.IP) || want.UDP != pong.To.UDP {
-		return fmt.Errorf("PONG 'to' endpoint mismatch: got %+v, want %+v", pong.To, want)
+	wantEndpoint := te.localEndpoint(te.l1)
+	if !reflect.DeepEqual(pong.To, wantEndpoint) {
+		return fmt.Errorf("PONG 'to' endpoint mismatch: got %+v, want %+v", pong.To, wantEndpoint)
 	}
 	if v4wire.Expired(pong.Expiration) {
 		return fmt.Errorf("PONG is expired (%v)", pong.Expiration)

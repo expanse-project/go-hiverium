@@ -21,8 +21,8 @@ import (
 	"sort"
 	"sync"
 
-	"github.com/ethereum/go-ethereum/common"
-	"github.com/ethereum/go-ethereum/event"
+	"github.com/expanse-org/go-expanse/common"
+	"github.com/expanse-org/go-expanse/event"
 )
 
 // Config contains the settings of the global account manager.

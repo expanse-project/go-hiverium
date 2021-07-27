@@ -22,17 +22,17 @@ import (
 	"math/big"
 	"reflect"
 
-	"github.com/ethereum/go-ethereum/common"
+	"github.com/expanse-org/go-expanse/common"
 )
 
 var (
-	// MaxUint256 is the maximum value that can be represented by a uint256.
+	// MaxUint256 is the maximum value that can be represented by a uint256
 	MaxUint256 = new(big.Int).Sub(new(big.Int).Lsh(common.Big1, 256), common.Big1)
-	// MaxInt256 is the maximum value that can be represented by a int256.
+	// MaxInt256 is the maximum value that can be represented by a int256
 	MaxInt256 = new(big.Int).Sub(new(big.Int).Lsh(common.Big1, 255), common.Big1)
 )
 
-// ReadInteger reads the integer based on its kind and returns the appropriate value.
+// ReadInteger reads the integer based on its kind and returns the appropriate value
 func ReadInteger(typ Type, b []byte) interface{} {
 	if typ.T == UintTy {
 		switch typ.Size {
@@ -73,7 +73,7 @@ func ReadInteger(typ Type, b []byte) interface{} {
 	}
 }
 
-// readBool reads a bool.
+// reads a bool
 func readBool(word []byte) (bool, error) {
 	for _, b := range word[:31] {
 		if b != 0 {
@@ -91,8 +91,7 @@ func readBool(word []byte) (bool, error) {
 }
 
 // A function type is simply the address with the function selection signature at the end.
-//
-// readFunctionType enforces that standard by always presenting it as a 24-array (address + sig = 24 bytes)
+// This enforces that standard by always presenting it as a 24-array (address + sig = 24 bytes)
 func readFunctionType(t Type, word []byte) (funcTy [24]byte, err error) {
 	if t.T != FunctionTy {
 		return [24]byte{}, fmt.Errorf("abi: invalid type in call to make function type byte array")
@@ -105,7 +104,7 @@ func readFunctionType(t Type, word []byte) (funcTy [24]byte, err error) {
 	return
 }
 
-// ReadFixedBytes uses reflection to create a fixed array to be read from.
+// ReadFixedBytes uses reflection to create a fixed array to be read from
 func ReadFixedBytes(t Type, word []byte) (interface{}, error) {
 	if t.T != FixedBytesTy {
 		return nil, fmt.Errorf("abi: invalid type in call to make fixed byte array")
@@ -118,7 +117,7 @@ func ReadFixedBytes(t Type, word []byte) (interface{}, error) {
 
 }
 
-// forEachUnpack iteratively unpack elements.
+// iteratively unpack elements
 func forEachUnpack(t Type, output []byte, start, size int) (interface{}, error) {
 	if size < 0 {
 		return nil, fmt.Errorf("cannot marshal input to array, size is negative (%d)", size)
@@ -225,10 +224,7 @@ func toGoType(index int, t Type, output []byte) (interface{}, error) {
 		return forEachUnpack(t, output[begin:], 0, length)
 	case ArrayTy:
 		if isDynamicType(*t.Elem) {
-			offset := binary.BigEndian.Uint64(returnOutput[len(returnOutput)-8:])
-			if offset > uint64(len(output)) {
-				return nil, fmt.Errorf("abi: toGoType offset greater than output length: offset: %d, len(output): %d", offset, len(output))
-			}
+			offset := int64(binary.BigEndian.Uint64(returnOutput[len(returnOutput)-8:]))
 			return forEachUnpack(t, output[offset:], 0, t.Size)
 		}
 		return forEachUnpack(t, output[index:], 0, t.Size)
@@ -253,7 +249,7 @@ func toGoType(index int, t Type, output []byte) (interface{}, error) {
 	}
 }
 
-// lengthPrefixPointsTo interprets a 32 byte slice as an offset and then determines which indices to look to decode the type.
+// interprets a 32 byte slice as an offset and then determines which indice to look to decode the type.
 func lengthPrefixPointsTo(index int, output []byte) (start int, length int, err error) {
 	bigOffsetEnd := big.NewInt(0).SetBytes(output[index : index+32])
 	bigOffsetEnd.Add(bigOffsetEnd, common.Big32)

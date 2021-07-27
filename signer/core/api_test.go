@@ -27,16 +27,16 @@ import (
 	"testing"
 	"time"
 
-	"github.com/ethereum/go-ethereum/accounts"
-	"github.com/ethereum/go-ethereum/accounts/keystore"
-	"github.com/ethereum/go-ethereum/common"
-	"github.com/ethereum/go-ethereum/common/hexutil"
-	"github.com/ethereum/go-ethereum/core/types"
-	"github.com/ethereum/go-ethereum/internal/ethapi"
-	"github.com/ethereum/go-ethereum/rlp"
-	"github.com/ethereum/go-ethereum/signer/core"
-	"github.com/ethereum/go-ethereum/signer/fourbyte"
-	"github.com/ethereum/go-ethereum/signer/storage"
+	"github.com/expanse-org/go-expanse/accounts"
+	"github.com/expanse-org/go-expanse/accounts/keystore"
+	"github.com/expanse-org/go-expanse/common"
+	"github.com/expanse-org/go-expanse/common/hexutil"
+	"github.com/expanse-org/go-expanse/core/types"
+	"github.com/expanse-org/go-expanse/internal/ethapi"
+	"github.com/expanse-org/go-expanse/rlp"
+	"github.com/expanse-org/go-expanse/signer/core"
+	"github.com/expanse-org/go-expanse/signer/fourbyte"
+	"github.com/expanse-org/go-expanse/signer/storage"
 )
 
 //Used for testing
@@ -234,7 +234,7 @@ func mkTestTx(from common.MixedcaseAddress) core.SendTxArgs {
 		From:     from,
 		To:       &to,
 		Gas:      gas,
-		GasPrice: &gasPrice,
+		GasPrice: gasPrice,
 		Value:    value,
 		Data:     &data,
 		Nonce:    nonce}

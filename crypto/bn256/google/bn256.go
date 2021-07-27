@@ -12,9 +12,8 @@
 //
 // This package specifically implements the Optimal Ate pairing over a 256-bit
 // Barreto-Naehrig curve as described in
-// http://cryptojedi.org/papers/dclxvi-20100714.pdf. Its output is not
-// compatible with the implementation described in that paper, as different
-// parameters are chosen.
+// http://cryptojedi.org/papers/dclxvi-20100714.pdf. Its output is compatible
+// with the implementation described in that paper.
 //
 // (This package previously claimed to operate at a 128-bit security level.
 // However, recent improvements in attacks mean that is no longer true. See

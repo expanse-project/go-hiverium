@@ -23,9 +23,9 @@ import (
 	"testing"
 	"time"
 
-	"github.com/ethereum/go-ethereum/crypto"
-	"github.com/ethereum/go-ethereum/p2p"
-	"github.com/ethereum/go-ethereum/p2p/enode"
+	"github.com/expanse-org/go-expanse/crypto"
+	"github.com/expanse-org/go-expanse/p2p"
+	"github.com/expanse-org/go-expanse/p2p/enode"
 )
 
 func TestULCAnnounceThresholdLes2(t *testing.T) { testULCAnnounceThreshold(t, 2) }
@@ -126,12 +126,7 @@ func connect(server *serverHandler, serverId enode.ID, client *clientHandler, pr
 
 // newTestServerPeer creates server peer.
 func newTestServerPeer(t *testing.T, blocks int, protocol int) (*testServer, *enode.Node, func()) {
-	netconfig := testnetConfig{
-		blocks:    blocks,
-		protocol:  protocol,
-		nopruning: true,
-	}
-	s, _, teardown := newClientServerEnv(t, netconfig)
+	s, teardown := newServerEnv(t, blocks, protocol, nil, false, false, 0)
 	key, err := crypto.GenerateKey()
 	if err != nil {
 		t.Fatal("generate key err:", err)
@@ -143,12 +138,6 @@ func newTestServerPeer(t *testing.T, blocks int, protocol int) (*testServer, *en
 
 // newTestLightPeer creates node with light sync mode
 func newTestLightPeer(t *testing.T, protocol int, ulcServers []string, ulcFraction int) (*testClient, func()) {
-	netconfig := testnetConfig{
-		protocol:    protocol,
-		ulcServers:  ulcServers,
-		ulcFraction: ulcFraction,
-		nopruning:   true,
-	}
-	_, c, teardown := newClientServerEnv(t, netconfig)
+	_, c, teardown := newClientServerEnv(t, 0, protocol, nil, ulcServers, ulcFraction, false, false, true)
 	return c, teardown
 }

@@ -20,7 +20,7 @@ import (
 	"container/heap"
 	"time"
 
-	"github.com/ethereum/go-ethereum/common/mclock"
+	"github.com/expanse-org/go-expanse/common/mclock"
 )
 
 // LazyQueue is a priority queue data structure where priorities can change over
@@ -36,58 +36,44 @@ type LazyQueue struct {
 	// Items are stored in one of two internal queues ordered by estimated max
 	// priority until the next and the next-after-next refresh. Update and Refresh
 	// always places items in queue[1].
-	queue                      [2]*sstack
-	popQueue                   *sstack
-	period                     time.Duration
-	maxUntil                   mclock.AbsTime
-	indexOffset                int
-	setIndex                   SetIndexCallback
-	priority                   PriorityCallback
-	maxPriority                MaxPriorityCallback
-	lastRefresh1, lastRefresh2 mclock.AbsTime
+	queue       [2]*sstack
+	popQueue    *sstack
+	period      time.Duration
+	maxUntil    mclock.AbsTime
+	indexOffset int
+	setIndex    SetIndexCallback
+	priority    PriorityCallback
+	maxPriority MaxPriorityCallback
 }
 
 type (
-	PriorityCallback    func(data interface{}) int64                       // actual priority callback
+	PriorityCallback    func(data interface{}, now mclock.AbsTime) int64   // actual priority callback
 	MaxPriorityCallback func(data interface{}, until mclock.AbsTime) int64 // estimated maximum priority callback
 )
 
 // NewLazyQueue creates a new lazy queue
 func NewLazyQueue(setIndex SetIndexCallback, priority PriorityCallback, maxPriority MaxPriorityCallback, clock mclock.Clock, refreshPeriod time.Duration) *LazyQueue {
 	q := &LazyQueue{
-		popQueue:     newSstack(nil, false),
-		setIndex:     setIndex,
-		priority:     priority,
-		maxPriority:  maxPriority,
-		clock:        clock,
-		period:       refreshPeriod,
-		lastRefresh1: clock.Now(),
-		lastRefresh2: clock.Now(),
-	}
+		popQueue:    newSstack(nil),
+		setIndex:    setIndex,
+		priority:    priority,
+		maxPriority: maxPriority,
+		clock:       clock,
+		period:      refreshPeriod}
 	q.Reset()
-	q.refresh(clock.Now())
+	q.Refresh()
 	return q
 }
 
 // Reset clears the contents of the queue
 func (q *LazyQueue) Reset() {
-	q.queue[0] = newSstack(q.setIndex0, false)
-	q.queue[1] = newSstack(q.setIndex1, false)
+	q.queue[0] = newSstack(q.setIndex0)
+	q.queue[1] = newSstack(q.setIndex1)
 }
 
-// Refresh performs queue re-evaluation if necessary
+// Refresh should be called at least with the frequency specified by the refreshPeriod parameter
 func (q *LazyQueue) Refresh() {
-	now := q.clock.Now()
-	for time.Duration(now-q.lastRefresh2) >= q.period*2 {
-		q.refresh(now)
-		q.lastRefresh2 = q.lastRefresh1
-		q.lastRefresh1 = now
-	}
-}
-
-// refresh re-evaluates items in the older queue and swaps the two queues
-func (q *LazyQueue) refresh(now mclock.AbsTime) {
-	q.maxUntil = now + mclock.AbsTime(q.period)
+	q.maxUntil = q.clock.Now() + mclock.AbsTime(q.period)
 	for q.queue[0].Len() != 0 {
 		q.Push(heap.Pop(q.queue[0]).(*item).value)
 	}
@@ -139,10 +125,11 @@ func (q *LazyQueue) peekIndex() int {
 // Pop multiple times. Popped items are passed to the callback. MultiPop returns
 // when the callback returns false or there are no more items to pop.
 func (q *LazyQueue) MultiPop(callback func(data interface{}, priority int64) bool) {
+	now := q.clock.Now()
 	nextIndex := q.peekIndex()
 	for nextIndex != -1 {
 		data := heap.Pop(q.queue[nextIndex]).(*item).value
-		heap.Push(q.popQueue, &item{data, q.priority(data)})
+		heap.Push(q.popQueue, &item{data, q.priority(data, now)})
 		nextIndex = q.peekIndex()
 		for q.popQueue.Len() != 0 && (nextIndex == -1 || q.queue[nextIndex].blocks[0][0].priority < q.popQueue.blocks[0][0].priority) {
 			i := heap.Pop(q.popQueue).(*item)
@@ -152,7 +139,6 @@ func (q *LazyQueue) MultiPop(callback func(data interface{}, priority int64) boo
 				}
 				return
 			}
-			nextIndex = q.peekIndex() // re-check because callback is allowed to push items back
 		}
 	}
 }

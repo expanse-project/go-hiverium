@@ -22,11 +22,11 @@ import (
 	"math/big"
 	"testing"
 
-	"github.com/ethereum/go-ethereum/common"
-	"github.com/ethereum/go-ethereum/core/types"
-	"github.com/ethereum/go-ethereum/ethdb"
-	"github.com/ethereum/go-ethereum/params"
-	"github.com/ethereum/go-ethereum/rlp"
+	"github.com/expanse-org/go-expanse/common"
+	"github.com/expanse-org/go-expanse/core/types"
+	"github.com/expanse-org/go-expanse/ethdb"
+	"github.com/expanse-org/go-expanse/params"
+	"github.com/expanse-org/go-expanse/rlp"
 	"golang.org/x/crypto/sha3"
 )
 
@@ -57,13 +57,13 @@ func (h *testHasher) Hash() common.Hash {
 // Tests that positional lookup metadata can be stored and retrieved.
 func TestLookupStorage(t *testing.T) {
 	tests := []struct {
-		name                        string
-		writeTxLookupEntriesByBlock func(ethdb.Writer, *types.Block)
+		name                 string
+		writeTxLookupEntries func(ethdb.Writer, *types.Block)
 	}{
 		{
 			"DatabaseV6",
 			func(db ethdb.Writer, block *types.Block) {
-				WriteTxLookupEntriesByBlock(db, block)
+				WriteTxLookupEntries(db, block)
 			},
 		},
 		{
@@ -110,7 +110,7 @@ func TestLookupStorage(t *testing.T) {
 			// Insert all the transactions into the database, and verify contents
 			WriteCanonicalHash(db, block.Hash(), block.NumberU64())
 			WriteBlock(db, block)
-			tc.writeTxLookupEntriesByBlock(db, block)
+			tc.writeTxLookupEntries(db, block)
 
 			for i, tx := range txs {
 				if txn, hash, number, index := ReadTransaction(db, tx.Hash()); txn == nil {

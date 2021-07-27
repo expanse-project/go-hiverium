@@ -25,7 +25,7 @@ import (
 	"sync"
 	"time"
 
-	"github.com/ethereum/go-ethereum/log"
+	"github.com/expanse-org/go-expanse/log"
 	natpmp "github.com/jackpal/go-nat-pmp"
 )
 
@@ -219,8 +219,9 @@ func (n *autodisc) String() string {
 	defer n.mu.Unlock()
 	if n.found == nil {
 		return n.what
+	} else {
+		return n.found.String()
 	}
-	return n.found.String()
 }
 
 // wait blocks until auto-discovery has been performed.

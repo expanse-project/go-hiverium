@@ -28,12 +28,7 @@ type Prque struct {
 
 // New creates a new priority queue.
 func New(setIndex SetIndexCallback) *Prque {
-	return &Prque{newSstack(setIndex, false)}
-}
-
-// NewWrapAround creates a new priority queue with wrap-around priority handling.
-func NewWrapAround(setIndex SetIndexCallback) *Prque {
-	return &Prque{newSstack(setIndex, true)}
+	return &Prque{newSstack(setIndex)}
 }
 
 // Pushes a value with a given priority into the queue, expanding if necessary.

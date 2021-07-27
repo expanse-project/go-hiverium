@@ -28,7 +28,7 @@ import (
 	"time"
 
 	mapset "github.com/deckarep/golang-set"
-	"github.com/ethereum/go-ethereum/log"
+	"github.com/expanse-org/go-expanse/log"
 	"github.com/gorilla/websocket"
 )
 
@@ -37,7 +37,6 @@ const (
 	wsWriteBuffer      = 1024
 	wsPingInterval     = 60 * time.Second
 	wsPingWriteTimeout = 5 * time.Second
-	wsMessageSizeLimit = 15 * 1024 * 1024
 )
 
 var wsBufferPool = new(sync.Pool)
@@ -76,14 +75,14 @@ func wsHandshakeValidator(allowedOrigins []string) func(*http.Request) bool {
 			allowAllOrigins = true
 		}
 		if origin != "" {
-			origins.Add(origin)
+			origins.Add(strings.ToLower(origin))
 		}
 	}
 	// allow localhost if no allowedOrigins are specified.
 	if len(origins.ToSlice()) == 0 {
 		origins.Add("http://localhost")
 		if hostname, err := os.Hostname(); err == nil {
-			origins.Add("http://" + hostname)
+			origins.Add("http://" + strings.ToLower(hostname))
 		}
 	}
 	log.Debug(fmt.Sprintf("Allowed origin(s) for WS RPC interface %v", origins.ToSlice()))
@@ -98,7 +97,7 @@ func wsHandshakeValidator(allowedOrigins []string) func(*http.Request) bool {
 		}
 		// Verify origin against whitelist.
 		origin := strings.ToLower(req.Header.Get("Origin"))
-		if allowAllOrigins || originIsAllowed(origins, origin) {
+		if allowAllOrigins || origins.Contains(origin) {
 			return true
 		}
 		log.Warn("Rejected WebSocket connection", "origin", origin)
@@ -119,65 +118,6 @@ func (e wsHandshakeError) Error() string {
 		s += " (HTTP status " + e.status + ")"
 	}
 	return s
-}
-
-func originIsAllowed(allowedOrigins mapset.Set, browserOrigin string) bool {
-	it := allowedOrigins.Iterator()
-	for origin := range it.C {
-		if ruleAllowsOrigin(origin.(string), browserOrigin) {
-			return true
-		}
-	}
-	return false
-}
-
-func ruleAllowsOrigin(allowedOrigin string, browserOrigin string) bool {
-	var (
-		allowedScheme, allowedHostname, allowedPort string
-		browserScheme, browserHostname, browserPort string
-		err                                         error
-	)
-	allowedScheme, allowedHostname, allowedPort, err = parseOriginURL(allowedOrigin)
-	if err != nil {
-		log.Warn("Error parsing allowed origin specification", "spec", allowedOrigin, "error", err)
-		return false
-	}
-	browserScheme, browserHostname, browserPort, err = parseOriginURL(browserOrigin)
-	if err != nil {
-		log.Warn("Error parsing browser 'Origin' field", "Origin", browserOrigin, "error", err)
-		return false
-	}
-	if allowedScheme != "" && allowedScheme != browserScheme {
-		return false
-	}
-	if allowedHostname != "" && allowedHostname != browserHostname {
-		return false
-	}
-	if allowedPort != "" && allowedPort != browserPort {
-		return false
-	}
-	return true
-}
-
-func parseOriginURL(origin string) (string, string, string, error) {
-	parsedURL, err := url.Parse(strings.ToLower(origin))
-	if err != nil {
-		return "", "", "", err
-	}
-	var scheme, hostname, port string
-	if strings.Contains(origin, "://") {
-		scheme = parsedURL.Scheme
-		hostname = parsedURL.Hostname()
-		port = parsedURL.Port()
-	} else {
-		scheme = ""
-		hostname = parsedURL.Scheme
-		port = parsedURL.Opaque
-		if hostname == "" {
-			hostname = origin
-		}
-	}
-	return scheme, hostname, port, nil
 }
 
 // DialWebsocketWithDialer creates a new RPC client that communicates with a JSON-RPC server
@@ -240,7 +180,7 @@ type websocketCodec struct {
 }
 
 func newWebsocketCodec(conn *websocket.Conn) ServerCodec {
-	conn.SetReadLimit(wsMessageSizeLimit)
+	conn.SetReadLimit(maxRequestContentLength)
 	wc := &websocketCodec{
 		jsonCodec: NewFuncCodec(conn, conn.WriteJSON, conn.ReadJSON).(*jsonCodec),
 		conn:      conn,

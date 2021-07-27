@@ -21,8 +21,8 @@ import (
 	"sync"
 	"sync/atomic"
 
-	"github.com/ethereum/go-ethereum/common/mclock"
-	"github.com/ethereum/go-ethereum/common/prque"
+	"github.com/expanse-org/go-expanse/common/mclock"
+	"github.com/expanse-org/go-expanse/common/prque"
 )
 
 // servingQueue allows running tasks in a limited number of threads and puts the
@@ -123,7 +123,7 @@ func (t *servingTask) waitOrStop() bool {
 // newServingQueue returns a new servingQueue
 func newServingQueue(suspendBias int64, utilTarget float64) *servingQueue {
 	sq := &servingQueue{
-		queue:          prque.NewWrapAround(nil),
+		queue:          prque.New(nil),
 		suspendBias:    suspendBias,
 		queueAddCh:     make(chan *servingTask, 100),
 		queueBestCh:    make(chan *servingTask),
@@ -159,23 +159,27 @@ func (sq *servingQueue) newTask(peer *clientPeer, maxTime uint64, priority int64
 // run tokens from the token channel and allow the corresponding tasks to run
 // without entering the priority queue.
 func (sq *servingQueue) threadController() {
-	defer sq.wg.Done()
 	for {
 		token := make(runToken)
 		select {
 		case best := <-sq.queueBestCh:
 			best.tokenCh <- token
 		case <-sq.stopThreadCh:
+			sq.wg.Done()
 			return
 		case <-sq.quit:
+			sq.wg.Done()
 			return
 		}
+		<-token
 		select {
 		case <-sq.stopThreadCh:
+			sq.wg.Done()
 			return
 		case <-sq.quit:
+			sq.wg.Done()
 			return
-		case <-token:
+		default:
 		}
 	}
 }
@@ -275,7 +279,7 @@ func (sq *servingQueue) updateRecentTime() {
 func (sq *servingQueue) addTask(task *servingTask) {
 	if sq.best == nil {
 		sq.best = task
-	} else if task.priority-sq.best.priority > 0 {
+	} else if task.priority > sq.best.priority {
 		sq.queue.Push(sq.best, sq.best.priority)
 		sq.best = task
 	} else {
@@ -294,7 +298,6 @@ func (sq *servingQueue) addTask(task *servingTask) {
 // and always tries to send the highest priority task to queueBestCh. Successfully sent
 // tasks are removed from the queue.
 func (sq *servingQueue) queueLoop() {
-	defer sq.wg.Done()
 	for {
 		if sq.best != nil {
 			expTime := sq.best.expTime
@@ -313,6 +316,7 @@ func (sq *servingQueue) queueLoop() {
 					sq.best, _ = sq.queue.PopItem().(*servingTask)
 				}
 			case <-sq.quit:
+				sq.wg.Done()
 				return
 			}
 		} else {
@@ -320,6 +324,7 @@ func (sq *servingQueue) queueLoop() {
 			case task := <-sq.queueAddCh:
 				sq.addTask(task)
 			case <-sq.quit:
+				sq.wg.Done()
 				return
 			}
 		}
@@ -330,7 +335,6 @@ func (sq *servingQueue) queueLoop() {
 // of active thread controller goroutines.
 func (sq *servingQueue) threadCountLoop() {
 	var threadCountTarget int
-	defer sq.wg.Done()
 	for {
 		for threadCountTarget > sq.threadCount {
 			sq.wg.Add(1)
@@ -343,12 +347,14 @@ func (sq *servingQueue) threadCountLoop() {
 			case sq.stopThreadCh <- struct{}{}:
 				sq.threadCount--
 			case <-sq.quit:
+				sq.wg.Done()
 				return
 			}
 		} else {
 			select {
 			case threadCountTarget = <-sq.setThreadsCh:
 			case <-sq.quit:
+				sq.wg.Done()
 				return
 			}
 		}

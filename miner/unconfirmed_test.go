@@ -19,7 +19,8 @@ package miner
 import (
 	"testing"
 
-	"github.com/ethereum/go-ethereum/core/types"
+	"github.com/expanse-org/go-expanse/common"
+	"github.com/expanse-org/go-expanse/core/types"
 )
 
 // noopChainRetriever is an implementation of headerRetriever that always
@@ -42,7 +43,7 @@ func TestUnconfirmedInsertBounds(t *testing.T) {
 	for depth := uint64(0); depth < 2*uint64(limit); depth++ {
 		// Insert multiple blocks for the same level just to stress it
 		for i := 0; i < int(depth); i++ {
-			pool.Insert(depth, [32]byte{byte(depth), byte(i)})
+			pool.Insert(depth, common.Hash([32]byte{byte(depth), byte(i)}))
 		}
 		// Validate that no blocks below the depth allowance are left in
 		pool.blocks.Do(func(block interface{}) {
@@ -62,7 +63,7 @@ func TestUnconfirmedShifts(t *testing.T) {
 
 	pool := newUnconfirmedBlocks(new(noopChainRetriever), limit)
 	for depth := start; depth < start+uint64(limit); depth++ {
-		pool.Insert(depth, [32]byte{byte(depth)})
+		pool.Insert(depth, common.Hash([32]byte{byte(depth)}))
 	}
 	// Try to shift below the limit and ensure no blocks are dropped
 	pool.Shift(start + uint64(limit) - 1)

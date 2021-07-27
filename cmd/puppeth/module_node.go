@@ -26,8 +26,8 @@ import (
 	"strings"
 	"text/template"
 
-	"github.com/ethereum/go-ethereum/common"
-	"github.com/ethereum/go-ethereum/log"
+	"github.com/expanse-org/go-expanse/common"
+	"github.com/expanse-org/go-expanse/log"
 )
 
 // nodeDockerfile is the Dockerfile required to run an Ethereum node.
@@ -94,7 +94,7 @@ func deployNode(client *sshClient, network string, bootnodes []string, config *n
 
 	lightFlag := ""
 	if config.peersLight > 0 {
-		lightFlag = fmt.Sprintf("--light.maxpeers=%d --light.serve=50", config.peersLight)
+		lightFlag = fmt.Sprintf("--lightpeers=%d --lightserv=50", config.peersLight)
 	}
 	dockerfile := new(bytes.Buffer)
 	template.Must(template.New("").Parse(nodeDockerfile)).Execute(dockerfile, map[string]interface{}{

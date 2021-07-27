@@ -16,13 +16,13 @@
 
 // Contains various wrappers for primitive types.
 
-package geth
+package gexp
 
 import (
 	"errors"
 	"fmt"
 
-	"github.com/ethereum/go-ethereum/common"
+	"github.com/expanse-org/go-expanse/common"
 )
 
 // Strings represents s slice of strs.

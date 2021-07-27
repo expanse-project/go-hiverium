@@ -24,8 +24,8 @@ import (
 	"runtime"
 	"testing"
 
-	"github.com/ethereum/go-ethereum/crypto"
-	"github.com/ethereum/go-ethereum/p2p"
+	"github.com/expanse-org/go-expanse/crypto"
+	"github.com/expanse-org/go-expanse/p2p"
 )
 
 // Tests that datadirs can be successfully created, be them manually configured
@@ -85,15 +85,15 @@ func TestIPCPathResolution(t *testing.T) {
 	}{
 		{"", "", false, ""},
 		{"data", "", false, ""},
-		{"", "geth.ipc", false, filepath.Join(os.TempDir(), "geth.ipc")},
-		{"data", "geth.ipc", false, "data/geth.ipc"},
-		{"data", "./geth.ipc", false, "./geth.ipc"},
-		{"data", "/geth.ipc", false, "/geth.ipc"},
+		{"", "gexp.ipc", false, filepath.Join(os.TempDir(), "gexp.ipc")},
+		{"data", "gexp.ipc", false, "data/gexp.ipc"},
+		{"data", "./gexp.ipc", false, "./gexp.ipc"},
+		{"data", "/gexp.ipc", false, "/gexp.ipc"},
 		{"", "", true, ``},
 		{"data", "", true, ``},
-		{"", "geth.ipc", true, `\\.\pipe\geth.ipc`},
-		{"data", "geth.ipc", true, `\\.\pipe\geth.ipc`},
-		{"data", `\\.\pipe\geth.ipc`, true, `\\.\pipe\geth.ipc`},
+		{"", "gexp.ipc", true, `\\.\pipe\gexp.ipc`},
+		{"data", "gexp.ipc", true, `\\.\pipe\gexp.ipc`},
+		{"data", `\\.\pipe\gexp.ipc`, true, `\\.\pipe\gexp.ipc`},
 	}
 	for i, test := range tests {
 		// Only run when platform/test match

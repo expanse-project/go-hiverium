@@ -23,10 +23,10 @@ import (
 	"math/rand"
 	"time"
 
-	"github.com/ethereum/go-ethereum/common"
-	"github.com/ethereum/go-ethereum/common/mclock"
-	"github.com/ethereum/go-ethereum/core/types"
-	"github.com/ethereum/go-ethereum/eth/fetcher"
+	"github.com/expanse-org/go-expanse/common"
+	"github.com/expanse-org/go-expanse/common/mclock"
+	"github.com/expanse-org/go-expanse/core/types"
+	"github.com/expanse-org/go-expanse/eth/fetcher"
 )
 
 var (
@@ -51,9 +51,8 @@ func init() {
 func Fuzz(input []byte) int {
 	// Don't generate insanely large test cases, not much value in them
 	if len(input) > 16*1024 {
-		return 0
+		return -1
 	}
-	verbose := false
 	r := bytes.NewReader(input)
 
 	// Reduce the problem space for certain fuzz runs. Small tx space is better
@@ -125,9 +124,7 @@ func Fuzz(input []byte) int {
 				announceIdxs[i] = (int(annBuf[0])*256 + int(annBuf[1])) % len(txs)
 				announces[i] = txs[announceIdxs[i]].Hash()
 			}
-			if verbose {
-				fmt.Println("Notify", peer, announceIdxs)
-			}
+			fmt.Println("Notify", peer, announceIdxs)
 			if err := f.Notify(peer, announces); err != nil {
 				panic(err)
 			}
@@ -166,9 +163,8 @@ func Fuzz(input []byte) int {
 				return 0
 			}
 			direct := (directFlag % 2) == 0
-			if verbose {
-				fmt.Println("Enqueue", peer, deliverIdxs, direct)
-			}
+
+			fmt.Println("Enqueue", peer, deliverIdxs, direct)
 			if err := f.Enqueue(peer, deliveries, direct); err != nil {
 				panic(err)
 			}
@@ -181,9 +177,8 @@ func Fuzz(input []byte) int {
 				return 0
 			}
 			peer := peers[int(peerIdx)%len(peers)]
-			if verbose {
-				fmt.Println("Drop", peer)
-			}
+
+			fmt.Println("Drop", peer)
 			if err := f.Drop(peer); err != nil {
 				panic(err)
 			}
@@ -196,9 +191,8 @@ func Fuzz(input []byte) int {
 				return 0
 			}
 			tick := time.Duration(tickCnt) * 100 * time.Millisecond
-			if verbose {
-				fmt.Println("Sleep", tick)
-			}
+
+			fmt.Println("Sleep", tick)
 			clock.Run(tick)
 		}
 	}

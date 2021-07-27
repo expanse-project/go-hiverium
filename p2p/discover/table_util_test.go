@@ -27,10 +27,10 @@ import (
 	"sort"
 	"sync"
 
-	"github.com/ethereum/go-ethereum/crypto"
-	"github.com/ethereum/go-ethereum/log"
-	"github.com/ethereum/go-ethereum/p2p/enode"
-	"github.com/ethereum/go-ethereum/p2p/enr"
+	"github.com/expanse-org/go-expanse/crypto"
+	"github.com/expanse-org/go-expanse/log"
+	"github.com/expanse-org/go-expanse/p2p/enode"
+	"github.com/expanse-org/go-expanse/p2p/enr"
 )
 
 var nullNode *enode.Node
@@ -146,6 +146,7 @@ func (t *pingRecorder) updateRecord(n *enode.Node) {
 func (t *pingRecorder) Self() *enode.Node           { return nullNode }
 func (t *pingRecorder) lookupSelf() []*enode.Node   { return nil }
 func (t *pingRecorder) lookupRandom() []*enode.Node { return nil }
+func (t *pingRecorder) close()                      {}
 
 // ping simulates a ping request.
 func (t *pingRecorder) ping(n *enode.Node) (seq uint64, err error) {
@@ -187,16 +188,15 @@ func hasDuplicates(slice []*node) bool {
 	return false
 }
 
-// checkNodesEqual checks whether the two given node lists contain the same nodes.
 func checkNodesEqual(got, want []*enode.Node) error {
 	if len(got) == len(want) {
 		for i := range got {
 			if !nodeEqual(got[i], want[i]) {
 				goto NotEqual
 			}
+			return nil
 		}
 	}
-	return nil
 
 NotEqual:
 	output := new(bytes.Buffer)
@@ -227,7 +227,6 @@ func sortedByDistanceTo(distbase enode.ID, slice []*node) bool {
 	})
 }
 
-// hexEncPrivkey decodes h as a private key.
 func hexEncPrivkey(h string) *ecdsa.PrivateKey {
 	b, err := hex.DecodeString(h)
 	if err != nil {
@@ -240,7 +239,6 @@ func hexEncPrivkey(h string) *ecdsa.PrivateKey {
 	return key
 }
 
-// hexEncPubkey decodes h as a public key.
 func hexEncPubkey(h string) (ret encPubkey) {
 	b, err := hex.DecodeString(h)
 	if err != nil {

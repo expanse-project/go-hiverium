@@ -16,11 +16,7 @@
 
 package core
 
-import (
-	"errors"
-
-	"github.com/ethereum/go-ethereum/core/types"
-)
+import "errors"
 
 var (
 	// ErrKnownBlock is returned when a block to import is already known locally.
@@ -49,6 +45,10 @@ var (
 	// next one expected based on the local chain.
 	ErrNonceTooHigh = errors.New("nonce too high")
 
+	// ErrPenaltyInChain is returned if the provided chain is not legit and has a penalty value.
+	// In that case the chain must be discarded and peer dropped.
+	ErrPenaltyInChain = errors.New("penalty in chain")
+
 	// ErrGasLimitReached is returned by the gas pool if the amount of gas required
 	// by a transaction is higher than what's left in the block.
 	ErrGasLimitReached = errors.New("gas limit reached")
@@ -67,24 +67,4 @@ var (
 	// ErrIntrinsicGas is returned if the transaction is specified to use less gas
 	// than required to start the invocation.
 	ErrIntrinsicGas = errors.New("intrinsic gas too low")
-
-	// ErrTxTypeNotSupported is returned if a transaction is not supported in the
-	// current network configuration.
-	ErrTxTypeNotSupported = types.ErrTxTypeNotSupported
-
-	// ErrTipAboveFeeCap is a sanity error to ensure no one is able to specify a
-	// transaction with a tip higher than the total fee cap.
-	ErrTipAboveFeeCap = errors.New("max priority fee per gas higher than max fee per gas")
-
-	// ErrTipVeryHigh is a sanity error to avoid extremely big numbers specified
-	// in the tip field.
-	ErrTipVeryHigh = errors.New("max priority fee per gas higher than 2^256-1")
-
-	// ErrFeeCapVeryHigh is a sanity error to avoid extremely big numbers specified
-	// in the fee cap field.
-	ErrFeeCapVeryHigh = errors.New("max fee per gas higher than 2^256-1")
-
-	// ErrFeeCapTooLow is returned if the transaction fee cap is less than the
-	// the base fee of the block.
-	ErrFeeCapTooLow = errors.New("max fee per gas less than block base fee")
 )

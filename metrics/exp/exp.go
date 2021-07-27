@@ -8,9 +8,9 @@ import (
 	"net/http"
 	"sync"
 
-	"github.com/ethereum/go-ethereum/log"
-	"github.com/ethereum/go-ethereum/metrics"
-	"github.com/ethereum/go-ethereum/metrics/prometheus"
+	"github.com/expanse-org/go-expanse/log"
+	"github.com/expanse-org/go-expanse/metrics"
+	"github.com/expanse-org/go-expanse/metrics/prometheus"
 )
 
 type exp struct {
@@ -128,7 +128,7 @@ func (exp *exp) publishMeter(name string, metric metrics.Meter) {
 	exp.getInt(name + ".count").Set(m.Count())
 	exp.getFloat(name + ".one-minute").Set(m.Rate1())
 	exp.getFloat(name + ".five-minute").Set(m.Rate5())
-	exp.getFloat(name + ".fifteen-minute").Set(m.Rate15())
+	exp.getFloat(name + ".fifteen-minute").Set((m.Rate15()))
 	exp.getFloat(name + ".mean").Set(m.RateMean())
 }
 

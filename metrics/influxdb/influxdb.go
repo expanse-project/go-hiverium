@@ -5,8 +5,8 @@ import (
 	uurl "net/url"
 	"time"
 
-	"github.com/ethereum/go-ethereum/log"
-	"github.com/ethereum/go-ethereum/metrics"
+	"github.com/expanse-org/go-expanse/log"
+	"github.com/expanse-org/go-expanse/metrics"
 	"github.com/influxdata/influxdb/client"
 )
 
@@ -162,29 +162,26 @@ func (r *reporter) send() error {
 			})
 		case metrics.Histogram:
 			ms := metric.Snapshot()
-
-			if ms.Count() > 0 {
-				ps := ms.Percentiles([]float64{0.5, 0.75, 0.95, 0.99, 0.999, 0.9999})
-				pts = append(pts, client.Point{
-					Measurement: fmt.Sprintf("%s%s.histogram", namespace, name),
-					Tags:        r.tags,
-					Fields: map[string]interface{}{
-						"count":    ms.Count(),
-						"max":      ms.Max(),
-						"mean":     ms.Mean(),
-						"min":      ms.Min(),
-						"stddev":   ms.StdDev(),
-						"variance": ms.Variance(),
-						"p50":      ps[0],
-						"p75":      ps[1],
-						"p95":      ps[2],
-						"p99":      ps[3],
-						"p999":     ps[4],
-						"p9999":    ps[5],
-					},
-					Time: now,
-				})
-			}
+			ps := ms.Percentiles([]float64{0.5, 0.75, 0.95, 0.99, 0.999, 0.9999})
+			pts = append(pts, client.Point{
+				Measurement: fmt.Sprintf("%s%s.histogram", namespace, name),
+				Tags:        r.tags,
+				Fields: map[string]interface{}{
+					"count":    ms.Count(),
+					"max":      ms.Max(),
+					"mean":     ms.Mean(),
+					"min":      ms.Min(),
+					"stddev":   ms.StdDev(),
+					"variance": ms.Variance(),
+					"p50":      ps[0],
+					"p75":      ps[1],
+					"p95":      ps[2],
+					"p99":      ps[3],
+					"p999":     ps[4],
+					"p9999":    ps[5],
+				},
+				Time: now,
+			})
 		case metrics.Meter:
 			ms := metric.Snapshot()
 			pts = append(pts, client.Point{

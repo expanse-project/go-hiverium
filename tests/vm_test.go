@@ -19,7 +19,7 @@ package tests
 import (
 	"testing"
 
-	"github.com/ethereum/go-ethereum/core/vm"
+	"github.com/expanse-org/go-expanse/core/vm"
 )
 
 func TestVM(t *testing.T) {
@@ -30,10 +30,10 @@ func TestVM(t *testing.T) {
 
 	vmt.walk(t, vmTestDir, func(t *testing.T, name string, test *VMTest) {
 		withTrace(t, test.json.Exec.GasLimit, func(vmconfig vm.Config) error {
-			return vmt.checkFailure(t, test.Run(vmconfig, false))
+			return vmt.checkFailure(t, name+"/trie", test.Run(vmconfig, false))
 		})
 		withTrace(t, test.json.Exec.GasLimit, func(vmconfig vm.Config) error {
-			return vmt.checkFailure(t, test.Run(vmconfig, true))
+			return vmt.checkFailure(t, name+"/snap", test.Run(vmconfig, true))
 		})
 	})
 }

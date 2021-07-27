@@ -20,8 +20,8 @@ import (
 	"bytes"
 	"fmt"
 
-	"github.com/ethereum/go-ethereum/core/types"
-	"github.com/ethereum/go-ethereum/rlp"
+	"github.com/expanse-org/go-expanse/core/types"
+	"github.com/expanse-org/go-expanse/rlp"
 )
 
 func decodeEncode(input []byte, val interface{}, i int) {
@@ -37,17 +37,17 @@ func decodeEncode(input []byte, val interface{}, i int) {
 }
 
 func Fuzz(input []byte) int {
-	if len(input) == 0 {
-		return 0
-	}
-
 	var i int
 	{
-		rlp.Split(input)
+		if len(input) > 0 {
+			rlp.Split(input)
+		}
 	}
 	{
-		if elems, _, err := rlp.SplitList(input); err == nil {
-			rlp.CountValues(elems)
+		if len(input) > 0 {
+			if elems, _, err := rlp.SplitList(input); err == nil {
+				rlp.CountValues(elems)
+			}
 		}
 	}
 
@@ -123,5 +123,5 @@ func Fuzz(input []byte) int {
 		var rs types.Receipts
 		decodeEncode(input, &rs, i)
 	}
-	return 1
+	return 0
 }

@@ -20,8 +20,8 @@ import (
 	"encoding/json"
 	"fmt"
 
-	"github.com/ethereum/go-ethereum/accounts/keystore"
-	"github.com/ethereum/go-ethereum/log"
+	"github.com/expanse-org/go-expanse/accounts/keystore"
+	"github.com/expanse-org/go-expanse/log"
 )
 
 // deployFaucet queries the user for various input on deploying a faucet, after
@@ -101,21 +101,6 @@ func (w *wizard) deployFaucet() {
 			fmt.Printf("What is the reCaptcha secret key to verify authentications? (won't be echoed)\n")
 			infos.captchaSecret = w.readPassword()
 		}
-	}
-	// Accessing the Twitter API requires a bearer token, request it
-	if infos.twitterToken != "" {
-		fmt.Println()
-		fmt.Println("Reuse previous Twitter API token (y/n)? (default = yes)")
-		if !w.readDefaultYesNo(true) {
-			infos.twitterToken = ""
-		}
-	}
-	if infos.twitterToken == "" {
-		// No previous twitter token (or old one discarded)
-		fmt.Println()
-		fmt.Println()
-		fmt.Printf("What is the Twitter API app Bearer token?\n")
-		infos.twitterToken = w.readString()
 	}
 	// Figure out where the user wants to store the persistent data
 	fmt.Println()

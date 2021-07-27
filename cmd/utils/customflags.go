@@ -26,7 +26,7 @@ import (
 	"path"
 	"strings"
 
-	"github.com/ethereum/go-ethereum/common/math"
+	"github.com/expanse-org/go-expanse/common/math"
 	"gopkg.in/urfave/cli.v1"
 )
 
@@ -192,14 +192,14 @@ func GlobalBig(ctx *cli.Context, name string) *big.Int {
 // Note, it has limitations, e.g. ~someuser/tmp will not be expanded
 func expandPath(p string) string {
 	if strings.HasPrefix(p, "~/") || strings.HasPrefix(p, "~\\") {
-		if home := HomeDir(); home != "" {
+		if home := homeDir(); home != "" {
 			p = home + p[1:]
 		}
 	}
 	return path.Clean(os.ExpandEnv(p))
 }
 
-func HomeDir() string {
+func homeDir() string {
 	if home := os.Getenv("HOME"); home != "" {
 		return home
 	}

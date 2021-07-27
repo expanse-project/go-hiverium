@@ -26,12 +26,12 @@ import (
 	"time"
 
 	"github.com/davecgh/go-spew/spew"
-	"github.com/ethereum/go-ethereum/common/mclock"
-	"github.com/ethereum/go-ethereum/crypto"
-	"github.com/ethereum/go-ethereum/internal/testlog"
-	"github.com/ethereum/go-ethereum/log"
-	"github.com/ethereum/go-ethereum/p2p/enode"
-	"github.com/ethereum/go-ethereum/p2p/enr"
+	"github.com/expanse-org/go-expanse/common/mclock"
+	"github.com/expanse-org/go-expanse/crypto"
+	"github.com/expanse-org/go-expanse/internal/testlog"
+	"github.com/expanse-org/go-expanse/log"
+	"github.com/expanse-org/go-expanse/p2p/enode"
+	"github.com/expanse-org/go-expanse/p2p/enr"
 )
 
 const (
@@ -113,21 +113,6 @@ func TestIterator(t *testing.T) {
 	}
 
 	checkIterator(t, it, nodes)
-}
-
-func TestIteratorCloseWithoutNext(t *testing.T) {
-	tree1, url1 := makeTestTree("t1", nil, nil)
-	c := NewClient(Config{Resolver: newMapResolver(tree1.ToTXT("t1"))})
-	it, err := c.NewIterator(url1)
-	if err != nil {
-		t.Fatal(err)
-	}
-
-	it.Close()
-	ok := it.Next()
-	if ok {
-		t.Fatal("Next returned true after Close")
-	}
 }
 
 // This test checks if closing randomIterator races.
@@ -244,53 +229,6 @@ func TestIteratorRootRecheckOnFail(t *testing.T) {
 	t.Log("tree updated")
 
 	checkIterator(t, it, nodes)
-}
-
-// This test checks that the iterator works correctly when the tree is initially empty.
-func TestIteratorEmptyTree(t *testing.T) {
-	var (
-		clock    = new(mclock.Simulated)
-		nodes    = testNodes(nodesSeed1, 1)
-		resolver = newMapResolver()
-		c        = NewClient(Config{
-			Resolver:        resolver,
-			Logger:          testlog.Logger(t, log.LvlTrace),
-			RecheckInterval: 20 * time.Minute,
-			RateLimit:       500,
-		})
-	)
-	c.clock = clock
-	tree1, url := makeTestTree("n", nil, nil)
-	tree2, _ := makeTestTree("n", nodes, nil)
-	resolver.add(tree1.ToTXT("n"))
-
-	// Start the iterator.
-	node := make(chan *enode.Node)
-	it, err := c.NewIterator(url)
-	if err != nil {
-		t.Fatal(err)
-	}
-	go func() {
-		it.Next()
-		node <- it.Node()
-	}()
-
-	// Wait for the client to get stuck in waitForRootUpdates.
-	clock.WaitForTimers(1)
-
-	// Now update the root.
-	resolver.add(tree2.ToTXT("n"))
-
-	// Wait for it to pick up the root change.
-	clock.Run(c.cfg.RecheckInterval)
-	select {
-	case n := <-node:
-		if n.ID() != nodes[0].ID() {
-			t.Fatalf("wrong node returned")
-		}
-	case <-time.After(5 * time.Second):
-		t.Fatal("it.Next() did not unblock within 5s of real time")
-	}
 }
 
 // updateSomeNodes applies ENR updates to some of the given nodes.

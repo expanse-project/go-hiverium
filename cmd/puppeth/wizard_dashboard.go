@@ -19,7 +19,7 @@ package main
 import (
 	"fmt"
 
-	"github.com/ethereum/go-ethereum/log"
+	"github.com/expanse-org/go-expanse/log"
 )
 
 // deployDashboard queries the user for various input on deploying a web-service
@@ -60,7 +60,7 @@ func (w *wizard) deployDashboard() {
 			available[service] = append(available[service], server)
 		}
 	}
-	for _, service := range []string{"ethstats", "explorer", "faucet"} {
+	for _, service := range []string{"ethstats", "explorer", "wallet", "faucet"} {
 		// Gather all the locally hosted pages of this type
 		var pages []string
 		for _, server := range available[service] {
@@ -78,6 +78,10 @@ func (w *wizard) deployDashboard() {
 			case "explorer":
 				if infos, err := checkExplorer(client, w.network); err == nil {
 					port = infos.port
+				}
+			case "wallet":
+				if infos, err := checkWallet(client, w.network); err == nil {
+					port = infos.webPort
 				}
 			case "faucet":
 				if infos, err := checkFaucet(client, w.network); err == nil {
@@ -123,6 +127,8 @@ func (w *wizard) deployDashboard() {
 			infos.ethstats = page
 		case "explorer":
 			infos.explorer = page
+		case "wallet":
+			infos.wallet = page
 		case "faucet":
 			infos.faucet = page
 		}

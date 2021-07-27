@@ -25,12 +25,12 @@ import (
 	"time"
 
 	"github.com/dop251/goja"
-	"github.com/ethereum/go-ethereum/accounts/scwallet"
-	"github.com/ethereum/go-ethereum/accounts/usbwallet"
-	"github.com/ethereum/go-ethereum/common/hexutil"
-	"github.com/ethereum/go-ethereum/console/prompt"
-	"github.com/ethereum/go-ethereum/internal/jsre"
-	"github.com/ethereum/go-ethereum/rpc"
+	"github.com/expanse-org/go-expanse/accounts/scwallet"
+	"github.com/expanse-org/go-expanse/accounts/usbwallet"
+	"github.com/expanse-org/go-expanse/common/hexutil"
+	"github.com/expanse-org/go-expanse/console/prompt"
+	"github.com/expanse-org/go-expanse/internal/jsre"
+	"github.com/expanse-org/go-expanse/rpc"
 )
 
 // bridge is a collection of JavaScript utility methods to bride the .js runtime
@@ -144,14 +144,15 @@ func (b *bridge) OpenWallet(call jsre.Call) (goja.Value, error) {
 		if val, err = openWallet(goja.Null(), wallet, passwd); err != nil {
 			if !strings.HasSuffix(err.Error(), scwallet.ErrPINNeeded.Error()) {
 				return nil, err
-			}
-			// PIN input requested, fetch from the user and call open again
-			input, err := b.prompter.PromptPassword("Please enter current PIN: ")
-			if err != nil {
-				return nil, err
-			}
-			if val, err = openWallet(goja.Null(), wallet, call.VM.ToValue(input)); err != nil {
-				return nil, err
+			} else {
+				// PIN input requested, fetch from the user and call open again
+				input, err := b.prompter.PromptPassword("Please enter current PIN: ")
+				if err != nil {
+					return nil, err
+				}
+				if val, err = openWallet(goja.Null(), wallet, call.VM.ToValue(input)); err != nil {
+					return nil, err
+				}
 			}
 		}
 
@@ -305,9 +306,9 @@ func (b *bridge) Sign(call jsre.Call) (goja.Value, error) {
 	}
 
 	// Send the request to the backend and return
-	sign, callable := goja.AssertFunction(getJeth(call.VM).Get("sign"))
+	sign, callable := goja.AssertFunction(getJeth(call.VM).Get("unlockAccount"))
 	if !callable {
-		return nil, fmt.Errorf("jeth.sign is not callable")
+		return nil, fmt.Errorf("jeth.unlockAccount is not callable")
 	}
 	return sign(goja.Null(), message, account, passwd)
 }
@@ -352,14 +353,14 @@ func (b *bridge) SleepBlocks(call jsre.Call) (goja.Value, error) {
 	}
 
 	// Poll the current block number until either it or a timeout is reached.
-	deadline := time.Now().Add(time.Duration(sleep) * time.Second)
-	var lastNumber hexutil.Uint64
-	if err := b.client.Call(&lastNumber, "eth_blockNumber"); err != nil {
-		return nil, err
-	}
+	var (
+		deadline   = time.Now().Add(time.Duration(sleep) * time.Second)
+		lastNumber = ^hexutil.Uint64(0)
+	)
 	for time.Now().Before(deadline) {
 		var number hexutil.Uint64
-		if err := b.client.Call(&number, "eth_blockNumber"); err != nil {
+		err := b.client.Call(&number, "eth_blockNumber")
+		if err != nil {
 			return nil, err
 		}
 		if number != lastNumber {
