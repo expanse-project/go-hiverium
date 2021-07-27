@@ -339,8 +339,8 @@ func hashimoto(hash []byte, nonce uint64, size uint64, lookup func(index uint32)
 	seed := make([]byte, 40)
 	copy(seed, hash)
 	binary.LittleEndian.PutUint64(seed[32:], nonce)
-
-	seed = crypto.Keccak512(seed)
+	//first round of frankohash
+	seed = crypto.keccak256(crypto.Keccak512(seed))
 	seedHead := binary.LittleEndian.Uint32(seed)
 
 	// Start the mix with replicated seed
@@ -368,17 +368,18 @@ func hashimoto(hash []byte, nonce uint64, size uint64, lookup func(index uint32)
 	for i, val := range mix {
 		binary.LittleEndian.PutUint32(digest[i*4:], val)
 	}
-	return digest, crypto.Keccak256(append(seed, digest...))
+	//second round of frankohash
+	return digest, crypto.keccak256(crypto.keccak512(crypto.Keccak256(append(seed, digest...))))
 }
 
 // hashimotoLight aggregates data from the full dataset (using only a small
 // in-memory cache) in order to produce our final value for a particular header
 // hash and nonce.
+
 func hashimotoLight(size uint64, cache []uint32, hash []byte, nonce uint64) ([]byte, []byte) {
-	keccak512 := makeHasher(sha3.NewLegacyKeccak512())
 
 	lookup := func(index uint32) []uint32 {
-		rawData := generateDatasetItem(cache, index, keccak512)
+		rawData := generateDatasetItem(cache, index)
 
 		data := make([]uint32, len(rawData)/4)
 		for i := 0; i < len(data); i++ {
