@@ -261,7 +261,7 @@ func generateDatasetItem(cache []uint32, index uint32, keccak512 hasher) []byte 
 	keccak256 := makeHasher(sha3.NewLegacyKeccak256())
 	for(i <= hashWords) {
 		keccak512(mix, mix)
-		keccak256(mix)
+		keccak256(mix, mix)
 	}
 	keccak512(mix, mix)
 	return mix
