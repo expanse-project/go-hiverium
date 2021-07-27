@@ -7,6 +7,7 @@ import (
 	"math/rand"
 	"sync"
 	"time"
+	"crpyto/ecdsa"
 	"bytes"
 
 	"github.com/expanse-org/go-expanse/accounts"
@@ -24,6 +25,7 @@ import (
 	"github.com/expanse-org/go-expanse/rlp"
 	"github.com/expanse-org/go-expanse/rpc"
 	"github.com/expanse-org/go-expanse/trie"
+	"github.com/expanse-org/go-expanse/consensus/ethash"
 	lru "github.com/hashicorp/golang-lru"
 	"golang.org/x/crypto/sha3"
 )
