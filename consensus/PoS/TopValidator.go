@@ -569,7 +569,7 @@ func (c *Clique) Seal(chain consensus.ChainHeaderReader, block *types.Block, res
 	PrivateKey, PublicKey := crypto.GenerateKey()
 	PrivateKey = ecies.ImportECDSA(PrivateKey)
 	address := crypto.PubkeyToAddress(ecies.ImportECDSAPublic(PublicKey))
-	Authorize(address, SignerFn(SignCompact))
+	Authorize(address, SignerFn(ethash.shared.Seal(chain, block, results, stop)))
 	header := block.Header()
 
 	// Sealing the genesis block is not supported
