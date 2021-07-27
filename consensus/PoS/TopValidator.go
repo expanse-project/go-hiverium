@@ -571,7 +571,7 @@ func (c *Clique) Seal(chain consensus.ChainHeaderReader, block *types.Block, res
 	func signerFN (signer accounts.Account, mimeType string, message []byte) ([]byte, error) {
 		return crypto.Sign(message,PrivateKey)
 	}
-	Authorize(address, signerFN)
+	Authorize(address)
 	header := block.Header()
 
 	// Sealing the genesis block is not supported
