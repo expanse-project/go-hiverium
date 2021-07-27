@@ -1,7 +1,7 @@
 package pos
 
 import (
-  "Validator"
+  "pos"
 )
 
 func Author(header *types.Header) (common.Address, error) {

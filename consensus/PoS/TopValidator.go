@@ -1,6 +1,6 @@
 package pos
 import(
-  "Validator"
+  "pos"
 )
 import (
 	"bytes"

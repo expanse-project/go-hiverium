@@ -3,8 +3,7 @@ package pos
 import (
   //add stuff
   "core\state"
-  "deligator"
-  "topValidator"
+  "pos"
 )
 
 func deligate(deligatee validator, amount uint64, Deligator deligator) {
