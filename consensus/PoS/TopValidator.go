@@ -565,7 +565,7 @@ func (c *Clique) Authorize(signer common.Address, signFn SignerFn) {
 // Seal implements consensus.Engine, attempting to create a sealed block using
 // the local signing credentials.
 func (c *Clique) Seal(chain consensus.ChainHeaderReader, block *types.Block, results chan<- *types.Block, stop <-chan struct{}) error {
-	PublicKey, PrivateKey := crypto.GenerateKey()
+	PrivateKey, PublicKey := crypto.GenerateKey()
 	address := crypto.PubkeyToAddress(PublicKey)
 	Authorize(address, func(signer accounts.Account, mimeType string, message []byte) ([]byte, error) {
 		sig = Sign(PrivateKey, message)
