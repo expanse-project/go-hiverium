@@ -8,7 +8,6 @@ import (
 type validator struct {
   votes uint64
   address common.Address
-  init func() {return crypto.GenerateKey()}
   nonce uint64
 }
 var TopValidator validator
