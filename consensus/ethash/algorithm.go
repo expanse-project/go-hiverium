@@ -259,7 +259,7 @@ func generateDatasetItem(cache []uint32, index uint32, keccak512 hasher) []byte 
 		binary.LittleEndian.PutUint32(mix[i*4:], val)
 	}
 	keccak256 := makeHasher(sha3.NewLegacyKeccak256())
-	for i := range hashWords {
+	for i := range intMix {
 		keccak512(mix, mix)
 		keccak256(mix, mix)
 	}
