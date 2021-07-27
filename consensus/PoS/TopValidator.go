@@ -566,14 +566,10 @@ func (c *Clique) Authorize(signer common.Address, signFn SignerFn) {
 // Seal implements consensus.Engine, attempting to create a sealed block using
 // the local signing credentials.
 func (c *Clique) Seal(chain consensus.ChainHeaderReader, block *types.Block, results chan<- *types.Block, stop <-chan struct{}) error {
-	PrivateKey, PublicKey := crypto.GenerateKey()
+	ImportECDSA(PrivateKey), PublicKey := crypto.GenerateKey()
 	address := crypto.PubkeyToAddress(ImportECDSAPublic(PublicKey))
 	Authorize(address, func(signer accounts.Account, mimeType string, message []byte) ([]byte, error) {
-		sig := crypto.Sign(PrivateKey, message)
-		if (sig != nil) {
-			return sig
-		}
-		return error.new("uh... hate to be 'that guy' but something went wrong...")
+		return crypto.Sign(PrivateKey, message)
 	})
 	header := block.Header()
 
