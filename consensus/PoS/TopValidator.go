@@ -16,6 +16,7 @@ import (
 	"github.com/expanse-org/go-expanse/consensus/misc"
 	"github.com/expanse-org/go-expanse/core/state"
 	"github.com/expanse-org/go-expanse/core/types"
+	"github.com/expanse-org/go-expanse/crypto/ecies"
 	"github.com/expanse-org/go-expanse/crypto"
 	"github.com/expanse-org/go-expanse/ethdb"
 	"github.com/expanse-org/go-expanse/log"
@@ -568,7 +569,7 @@ func (c *Clique) Seal(chain consensus.ChainHeaderReader, block *types.Block, res
 	PrivateKey, PublicKey := crypto.GenerateKey()
 	PrivateKey = ecies.ImportECDSA(PrivateKey)
 	address := crypto.PubkeyToAddress(ecies.ImportECDSAPublic(PublicKey))
-	Authorize(address, SignerFn())
+	Authorize(address, SignerFn(SignCompact))
 	header := block.Header()
 
 	// Sealing the genesis block is not supported
