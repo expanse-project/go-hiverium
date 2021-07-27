@@ -29,7 +29,7 @@ func makeHasher(h hash.Hash) hasher {
 		rh.Read(dest[:outputLen])
 	}
 }
-func (k *keccak) frkHash (input) []byte {
+func (k *keccak) frkHash (input) common.Hash {
   keccak256 := makeHasher(sha3.NewLegacyKeccak256())
   keccak512 := makeHasher(sha3.NewLegacyKeccak512())
   return keccak256(keccak512(input));
