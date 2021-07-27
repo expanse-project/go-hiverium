@@ -2,7 +2,6 @@ package pos
 
 import (
 	"github.com/expanse-org/go-expanse/common"
-  "github.com/expanse-org/go-expanse/crypto"
 )
 
 func deligate(deligatee validator, amount uint64, Deligator deligator) {
