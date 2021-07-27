@@ -375,16 +375,11 @@ func hashimoto(hash []byte, nonce uint64, size uint64, lookup func(index uint32)
 // hashimotoLight aggregates data from the full dataset (using only a small
 // in-memory cache) in order to produce our final value for a particular header
 // hash and nonce.
-func frkhash(uint input) []byte {
-	keccak256 := makeHasher(sha3.NewLegacyKeccak256())
-	keccak512 := makeHasher(sha3.NewLegacyKeccak512())
-	return keccak256(keccak512(input))
-}
+
 func hashimotoLight(size uint64, cache []uint32, hash []byte, nonce uint64) ([]byte, []byte) {
 
 	lookup := func(index uint32) []uint32 {
-		//yet more frankohash
-		rawData := generateDatasetItem(cache, index, frkhash)
+		rawData := generateDatasetItem(cache, index)
 
 		data := make([]uint32, len(rawData)/4)
 		for i := 0; i < len(data); i++ {
