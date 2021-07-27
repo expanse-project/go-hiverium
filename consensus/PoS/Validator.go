@@ -7,8 +7,9 @@ import (
 
 type validator struct {
   votes uint64
-  common.Address
+  address common.Address
   key keything
+  nonce uint64
 }
 func init() {
   validator.key, _ := crypto.GenerateKey()
