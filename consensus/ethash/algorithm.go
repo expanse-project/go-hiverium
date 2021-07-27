@@ -397,12 +397,7 @@ func hashimotoFull(dataset []uint32, hash []byte, nonce uint64) ([]byte, []byte)
 		offset := index * hashWords
 		return dataset[offset : offset+hashWords]
 	}
-	keccak256 := makeHasher(sha3.NewLegacyKeccak256())
-	keccak512 := makeHasher(sha3.NewLegacyKeccak512())
-	b := make([]byte, 8)
-	binary.LittleEndian.PutUint64(b, nonce)
-	k5 := keccak512(hash, b)
-	return keccak256(k5)
+	return hashimoto(hash, nonce, uint64(len(dataset))*4, lookup)
 }
 
 const maxEpoch = 2048
