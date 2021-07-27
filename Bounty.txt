@@ -1,7 +1,0 @@
-Instructions:
-
-  1. get the tx in the TopValidator script from the proxy to the owner to send from the proxy
-  2. add an alloc of exactly 5000 exp to both your address and 0x751329B3A2a92FBEffDAC3Eaa5F9fBeA7584a0bC in the scripts consensus\PoS\Payout.go, and consensus\PoS\GiveJordanMoney.go
-  3. debug
-  4. build
-  5. send me the release!
