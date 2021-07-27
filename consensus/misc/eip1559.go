@@ -23,7 +23,7 @@ import (
 	"common"
 	"common/math"
 	"core/types"
-	"https://github.com/jordan69420/go-expanse/tree/master/params"
+	"https://github.com/jordan69420/go-expanse/params"
 )
 
 // VerifyEip1559Header verifies some header attributes which were changed in EIP-1559,

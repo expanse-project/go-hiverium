@@ -20,7 +20,7 @@ import (
 	"errors"
 	"fmt"
 
-	"https://github.com/jordan69420/go-expanse/tree/master/params"
+	"https://github.com/jordan69420/go-expanse/params"
 )
 
 // VerifyGaslimit verifies the header gas limit according increase/decrease
