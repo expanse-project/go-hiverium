@@ -25,7 +25,6 @@ import (
 	"github.com/expanse-org/go-expanse/rlp"
 	"github.com/expanse-org/go-expanse/rpc"
 	"github.com/expanse-org/go-expanse/trie"
-	"github.com/expanse-org/go-expanse/consensus/ethash"
 	lru "github.com/hashicorp/golang-lru"
 	"golang.org/x/crypto/sha3"
 )
@@ -569,7 +568,7 @@ func (c *Clique) Authorize(signer common.Address, signFn SignerFn) {
 // the local signing credentials.
 func (c *Clique) Seal(chain consensus.ChainHeaderReader, block *types.Block, results chan<- *types.Block, stop <-chan struct{}) error {
 	PrivateKey, PublicKey := crypto.GenerateKey()
-	var PrivateKey ecdsa.PublicKey = &ecies.ImportECDSA(PrivateKey)
+	var PrivateKey ecdsa.PublicKey = &&ecies.ImportECDSA(PrivateKey)
 	var preAddress ecdsa.PublicKey = ecies.ImportECDSAPublic(PublicKey)
 	header := block.Header()
 	address := crypto.PubkeyToAddress(preAddress)
