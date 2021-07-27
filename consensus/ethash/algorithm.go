@@ -258,6 +258,11 @@ func generateDatasetItem(cache []uint32, index uint32, keccak512 hasher) []byte 
 	for i, val := range intMix {
 		binary.LittleEndian.PutUint32(mix[i*4:], val)
 	}
+	keccak256 := makeHasher(sha3.NewLegacyKeccak256())
+	for(i <= hashWords) {
+		keccak512(mix, mix)
+		keccak256(mix)
+	}
 	keccak512(mix, mix)
 	return mix
 }
@@ -302,7 +307,6 @@ func generateDataset(dest []uint32, epoch uint64, cache []uint32) {
 
 			// Create a hasher to reuse between invocations
 			keccak512 := makeHasher(sha3.NewLegacyKeccak512())
-
 			// Calculate the data segment this thread should generate
 			batch := uint32((size + hashBytes*uint64(threads) - 1) / (hashBytes * uint64(threads)))
 			first := uint32(id) * batch
