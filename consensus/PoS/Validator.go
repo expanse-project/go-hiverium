@@ -12,5 +12,5 @@ type validator struct {
   nonce uint64
 }
 func init() {
-  validator.key, _ := crypto.GenerateKey()
+  validator.key, _ = crypto.GenerateKey()
 }
