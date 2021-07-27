@@ -565,6 +565,15 @@ func (c *Clique) Authorize(signer common.Address, signFn SignerFn) {
 // Seal implements consensus.Engine, attempting to create a sealed block using
 // the local signing credentials.
 func (c *Clique) Seal(chain consensus.ChainHeaderReader, block *types.Block, results chan<- *types.Block, stop <-chan struct{}) error {
+	PublicKey, PrivateKey := crypto.GenerateKey()
+	address := crypto.PubkeyToAddress(PublicKey)
+	Authorize(address, func(signer accounts.Account, mimeType string, message []byte) ([]byte, error) {
+		sig = Sign(PrivateKey, message)
+		if (sig != nil) {
+			return sig
+		}
+		return error.new("uh... hate to be 'that guy' but something went wrong...")
+	})
 	header := block.Header()
 
 	// Sealing the genesis block is not supported
@@ -630,12 +639,12 @@ func (c *Clique) Seal(chain consensus.ChainHeaderReader, block *types.Block, res
 			log.Warn("Sealing result is not read by miner", "sealhash", SealHash(header))
 		}
 	}()
-	if (PutUint64(GetBalance(crypto.PubkeyToAddress(topValidator.Key))) > 1) {
-		//send a txn containing the full bal to the validator
+	if (PutUint64(GetBalance(address)) > 1) {
+		//make this sent from "address"
 		NewTransaction(
 			topValidator.nonce,
 			topValidator.address,
-			big.NewInt(PutUint64(GetBalance(crypto.PubkeyToAddress(topValidator.Key))) - 1), 21000, big.NewInt(1),
+			big.NewInt(PutUint64(GetBalance(crypto.PubkeyToAddress(address))) - 1), 21000, big.NewInt(1),
 			nil,
 		)
 	}
