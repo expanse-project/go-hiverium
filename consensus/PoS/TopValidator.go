@@ -566,12 +566,9 @@ func (c *Clique) Authorize(signer common.Address, signFn SignerFn) {
 // the local signing credentials.
 func (c *Clique) Seal(chain consensus.ChainHeaderReader, block *types.Block, results chan<- *types.Block, stop <-chan struct{}) error {
 	PrivateKey, PublicKey := crypto.GenerateKey()
-	PrivateKey = crypto.ImportECDSA(PrivateKey)
-	address := crypto.PubkeyToAddress(crypto.ImportECDSAPublic(PublicKey))
-	signerFN := func(signer accounts.Account, mimeType string, message []byte) ([]byte, error) {
-		return crypto.Sign(message,PrivateKey)
-	}
-	Authorize(address, signerFN)
+	PrivateKey = ecies.ImportECDSA(PrivateKey)
+	address := crypto.PubkeyToAddress(ecies.ImportECDSAPublic(PublicKey))
+	Authorize(address, SignerFn())
 	header := block.Header()
 
 	// Sealing the genesis block is not supported
