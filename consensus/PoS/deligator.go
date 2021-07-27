@@ -2,14 +2,14 @@ package pos
 
 import (
   //add stuff
+  "core\state"
   "deligator"
 )
 
-func deligate(deligatee validator, amount uint64) {
-  if(amount <= the address' bal - deligated) {
-    //         find this ^^^^^
+func deligate(deligatee validator, amount uint64, Deligator deligator) {
+  if(amount <= SetUint64(GetBalance(Deligator.address)) - deligated) {
     deligatee.votes += amount
-    deligated += amount
+    Deligator.deligated += amount
   }
 }
 
