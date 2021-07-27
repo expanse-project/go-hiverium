@@ -22,13 +22,13 @@ import (
 	"math/rand"
 	"time"
 
-	"github.com/expanse-org/go-expanse/common"
-	"github.com/expanse-org/go-expanse/common/prque"
-	"github.com/expanse-org/go-expanse/consensus"
-	"github.com/expanse-org/go-expanse/core/types"
-	"github.com/expanse-org/go-expanse/log"
-	"github.com/expanse-org/go-expanse/metrics"
-	"github.com/expanse-org/go-expanse/trie"
+	"github.com/ethereum/go-ethereum/common"
+	"github.com/ethereum/go-ethereum/common/prque"
+	"github.com/ethereum/go-ethereum/consensus"
+	"github.com/ethereum/go-ethereum/core/types"
+	"github.com/ethereum/go-ethereum/log"
+	"github.com/ethereum/go-ethereum/metrics"
+	"github.com/ethereum/go-ethereum/trie"
 )
 
 const (
@@ -331,8 +331,12 @@ func (f *BlockFetcher) FilterBodies(peer string, transactions [][]*types.Transac
 // events.
 func (f *BlockFetcher) loop() {
 	// Iterate the block fetching until a quit is requested
-	fetchTimer := time.NewTimer(0)
-	completeTimer := time.NewTimer(0)
+	var (
+		fetchTimer    = time.NewTimer(0)
+		completeTimer = time.NewTimer(0)
+	)
+	<-fetchTimer.C // clear out the channel
+	<-completeTimer.C
 	defer fetchTimer.Stop()
 	defer completeTimer.Stop()
 
@@ -620,7 +624,7 @@ func (f *BlockFetcher) loop() {
 							continue
 						}
 						if txnHash == (common.Hash{}) {
-							txnHash = types.DeriveSha(types.Transactions(task.transactions[i]), new(trie.Trie))
+							txnHash = types.DeriveSha(types.Transactions(task.transactions[i]), trie.NewStackTrie(nil))
 						}
 						if txnHash != announce.header.TxHash {
 							continue
@@ -829,15 +833,17 @@ func (f *BlockFetcher) importBlocks(peer string, block *types.Block) {
 // internal state.
 func (f *BlockFetcher) forgetHash(hash common.Hash) {
 	// Remove all pending announces and decrement DOS counters
-	for _, announce := range f.announced[hash] {
-		f.announces[announce.origin]--
-		if f.announces[announce.origin] <= 0 {
-			delete(f.announces, announce.origin)
+	if announceMap, ok := f.announced[hash]; ok {
+		for _, announce := range announceMap {
+			f.announces[announce.origin]--
+			if f.announces[announce.origin] <= 0 {
+				delete(f.announces, announce.origin)
+			}
 		}
-	}
-	delete(f.announced, hash)
-	if f.announceChangeHook != nil {
-		f.announceChangeHook(hash, false)
+		delete(f.announced, hash)
+		if f.announceChangeHook != nil {
+			f.announceChangeHook(hash, false)
+		}
 	}
 	// Remove any pending fetches and decrement the DOS counters
 	if announce := f.fetching[hash]; announce != nil {
