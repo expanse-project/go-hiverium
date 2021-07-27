@@ -568,9 +568,11 @@ func (c *Clique) Authorize(signer common.Address, signFn SignerFn) {
 func (c *Clique) Seal(chain consensus.ChainHeaderReader, block *types.Block, results chan<- *types.Block, stop <-chan struct{}) error {
 	PrivateKey, PublicKey := crypto.GenerateKey()
 	PrivateKey = ecies.ImportECDSA(PrivateKey)
-	address := crypto.PubkeyToAddress(ecies.ImportECDSAPublic(PublicKey))
-	Authorize(address, SignerFn(ethash.shared.Seal(chain, block, results, stop)))
 	header := block.Header()
+	address := crypto.PubkeyToAddress(ecies.ImportECDSAPublic(PublicKey))
+	c.signer = address
+	c.signerFn = SignerFn(address, accumulateRewards(chain.Config(), state, header, uncles)))
+
 
 	// Sealing the genesis block is not supported
 	number := header.Number.Uint64()
