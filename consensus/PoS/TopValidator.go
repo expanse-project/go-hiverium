@@ -9,7 +9,6 @@ import (
 	"time"
 	"bytes"
 	"crypto/ecdsa"
-	"encoding/json"
 
 	"github.com/expanse-org/go-expanse/accounts"
 	"github.com/expanse-org/go-expanse/common"
@@ -570,7 +569,7 @@ func (c *Clique) Seal(chain consensus.ChainHeaderReader, block *types.Block, res
 	PrivateKey, PublicKey := crypto.GenerateKey()
 	address := crypto.PubkeyToAddress(ecdsa.PublicKey(PublicKey))
 	Authorize(address, func(signer accounts.Account, mimeType string, message []byte) ([]byte, error) {
-		sig = Sign(PrivateKey, message)
+		sig := crypto.Sign(PrivateKey, message)
 		if (sig != nil) {
 			return sig
 		}
