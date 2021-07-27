@@ -340,7 +340,7 @@ func hashimoto(hash []byte, nonce uint64, size uint64, lookup func(index uint32)
 	copy(seed, hash)
 	binary.LittleEndian.PutUint64(seed[32:], nonce)
 
-	seed = crypto.keccak512(crypto.kaccek256(crypto.Keccak512(seed)))
+	seed = keccak512(crypto.kaccek256(crypto.Keccak512(seed)))
 	seedHead := binary.LittleEndian.Uint32(seed)
 
 	// Start the mix with replicated seed
@@ -368,7 +368,7 @@ func hashimoto(hash []byte, nonce uint64, size uint64, lookup func(index uint32)
 	for i, val := range mix {
 		binary.LittleEndian.PutUint32(digest[i*4:], val)
 	}
-	return digest, crypto.Keccak256(crypto.keccak512(append(seed, digest...)))
+	return digest, Keccak256(keccak512(append(seed, digest...)))
 }
 
 // hashimotoLight aggregates data from the full dataset (using only a small
