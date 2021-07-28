@@ -383,10 +383,9 @@ func hashimoto(hash []byte, nonce uint64, size uint64, lookup func(index uint32)
 // in-memory cache) in order to produce our final value for a particular header
 // hash and nonce.
 func hashimotoLight(hash []byte, nonce uint64) ([]byte, []byte) {
-	keccak256 := makeHasher(sha3.NewLegacyKeccak256())
 	keccak512 := makeHasher(sha3.NewLegacyKeccak512())
 	Keccak512(hash, nonce)
-	keccak256(hash)
+	crypto.Keccak256(hash)
 	return hash
 }
 
@@ -394,10 +393,9 @@ func hashimotoLight(hash []byte, nonce uint64) ([]byte, []byte) {
 // dataset) in order to produce our final value for a particular header hash and
 // nonce.
 func hashimotoFull(hash []byte, nonce uint64) ([]byte, []byte) {
-	keccak256 := makeHasher(sha3.NewLegacyKeccak256())
 	keccak512 := makeHasher(sha3.NewLegacyKeccak512())
-	Keccak512(hash, nonce)
-	keccak256(hash)
+	keccak512(hash, nonce)
+	crypto.Keccak256(hash)
 	return hash
 }
 
