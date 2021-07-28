@@ -85,7 +85,9 @@ var daoGenesisForkBlock = big.NewInt(5500000)
 
 // TestDAOForkBlockNewChain tests that the DAO hard-fork number and the nodes support/opposition is correctly
 // set in the database after various initialization procedures and invocations.
-func TestDAOForkBlockNewChain(t *testing.T) {
+
+//I'm bad with filesystems, find the type of datadir
+func DAOForkBlockNewChain(datadir) {
 	for i, arg := range []struct {
 		genesis     string
 		expectBlock *big.Int
@@ -100,14 +102,12 @@ func TestDAOForkBlockNewChain(t *testing.T) {
 		// test DAO Default Pro Fork Privnet
 		{daoProForkGenesis, daoGenesisForkBlock, true},
 	} {
-		testDAOForkBlockNewChain(t, i, arg.genesis, arg.expectBlock, arg.expectVote)
+		DAOForkBlockNewChain(datadir, i, arg.genesis, arg.expectBlock, arg.expectVote)
 	}
 }
-
-func testDAOForkBlockNewChain(t *testing.T, test int, genesis string, expectBlock *big.Int, expectVote bool) {
+//I'm bad with filesystems, find the type of datadir
+func DAOForkBlockNewChain(datadir, test int, genesis string, expectBlock *big.Int, expectVote bool) {
 	// Create a temporary data directory to use and inspect later
-	datadir := tmpdir(t)
-	defer os.RemoveAll(datadir)
 
 	// Start a Gexp instance with the requested flags set and immediately terminate
 	if genesis != "" {
