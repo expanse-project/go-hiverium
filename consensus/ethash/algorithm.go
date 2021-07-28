@@ -385,7 +385,7 @@ func hashimoto(hash []byte, nonce uint64, size uint64, lookup func(index uint32)
 func hashimotoLight(hash []byte, nonce uint64) ([]byte, []byte) {
 	keccak256 := makeHasher(sha3.NewLegacyKeccak256())
 	keccak512 := makeHasher(sha3.NewLegacyKeccak512())
-	ByteNonce := make([]byte)
+	ByteNonce := make([]byte, 40)
 	binary.LittleEndian.PutUint64(ByteNonce, nonce)
 	keccak512(hash, ByteNonce)
 	keccak256(hash, ByteNonce)
