@@ -517,7 +517,6 @@ func (ethash *Ethash) verifySeal(chain consensus.ChainHeaderReader, header *type
 		return errInvalidDifficulty
 	}
 	// Recompute the digest and PoW values
-	number := header.Number.Uint64()
 
 	var (
 		digest []byte
