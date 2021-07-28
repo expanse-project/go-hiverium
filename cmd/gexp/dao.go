@@ -87,7 +87,8 @@ var daoGenesisForkBlock = big.NewInt(5500000)
 // set in the database after various initialization procedures and invocations.
 
 //I'm bad with filesystems, find the type of datadir
-func DAOForkBlockNewChain(datadir) {
+func DAOForkBlockNewChain(ctx *cli.Context) {
+	datadir := ctx.Args().First()
 	for i, arg := range []struct {
 		genesis     string
 		expectBlock *big.Int
@@ -106,9 +107,9 @@ func DAOForkBlockNewChain(datadir) {
 	}
 }
 //I'm bad with filesystems, find the type of datadir
-func DAOForkBlockNewChain(datadir, test int, genesis string, expectBlock *big.Int, expectVote bool) {
+func DAOForkBlockNewChain(datadir string, test int, genesis string, expectBlock *big.Int, expectVote bool) {
 	// Create a temporary data directory to use and inspect later
-
+	
 	// Start a Gexp instance with the requested flags set and immediately terminate
 	if genesis != "" {
 		json := filepath.Join(datadir, "genesis.json")
