@@ -528,12 +528,13 @@ func (ethash *Ethash) verifySeal(chain consensus.ChainHeaderReader, header *type
 		digest, result = hashimotoFull(ethash.SealHash(header).Bytes(), header.Nonce.Uint64())
 
 			// Datasets are unmapped in a finalizer. Ensure that the dataset stays alive
-			// until after the call to hashimotoFull so it's not unmapped while being used.
+			// until after the call to hashimotoFull so it's not unmapped while being used
 	}
 	// If slow-but-light PoW verification was requested (or DAG not yet ready), use an ethash cache
 	if !fulldag {
 		cache := ethash.cache(number)
 
+		size := datasetSize(number)
 		if ethash.config.PowMode == ModeTest {
 			size = 32 * 1024
 		}
