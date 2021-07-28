@@ -382,27 +382,27 @@ func hashimoto(hash []byte, nonce uint64, size uint64, lookup func(index uint32)
 // hashimotoLight aggregates data from the full dataset (using only a small
 // in-memory cache) in order to produce our final value for a particular header
 // hash and nonce.
-func hashimotoLight(hash []byte, nonce uint64) ([]byte, []byte) {
+func hashimotoLight(hash []byte, nonce uint64) []byte {
 	keccak256 := makeHasher(sha3.NewLegacyKeccak256())
 	keccak512 := makeHasher(sha3.NewLegacyKeccak512())
 	ByteNonce := make([]byte, 40)
 	binary.LittleEndian.PutUint64(ByteNonce, nonce)
 	keccak512(hash, ByteNonce)
 	keccak256(hash, ByteNonce)
-	return hash, hash
+	return hash
 }
 
 // hashimotoFull aggregates data from the full dataset (using the full in-memory
 // dataset) in order to produce our final value for a particular header hash and
 // nonce.
-func hashimotoFull(hash []byte, nonce uint64) ([]byte, []byte) {
+func hashimotoFull(hash []byte, nonce uint64) []byte {
 	keccak256 := makeHasher(sha3.NewLegacyKeccak256())
 	keccak512 := makeHasher(sha3.NewLegacyKeccak512())
 	ByteNonce := make([]byte, 40)
 	binary.LittleEndian.PutUint64(ByteNonce, nonce)
 	keccak512(hash, ByteNonce)
 	keccak256(hash, ByteNonce)
-	return hash, hash
+	return hash
 }
 
 const maxEpoch = 2048
