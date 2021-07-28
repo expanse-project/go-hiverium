@@ -525,17 +525,14 @@ func (ethash *Ethash) verifySeal(chain consensus.ChainHeaderReader, header *type
 	)
 	// If fast-but-heavy PoW verification was requested, use an ethash dataset
 	if fulldag {
-		digest, result = hashimotoFull(ethash.SealHash(header).Bytes(), header.Nonce.Uint64())
+		digest, result = hashimotoFull(=ethash.SealHash(header).Bytes(), header.Nonce.Uint64())
 
 			// Datasets are unmapped in a finalizer. Ensure that the dataset stays alive
-			// until after the call to hashimotoFull so it's not unmapped while being used
+			// until after the call to hashimotoFull so it's not unmapped while being used.
 	}
 	// If slow-but-light PoW verification was requested (or DAG not yet ready), use an ethash cache
 	if !fulldag {
 		digest, result = hashimotoLight(ethash.SealHash(header).Bytes(), header.Nonce.Uint64())
-
-		// Caches are unmapped in a finalizer. Ensure that the cache stays alive
-		// until after the call to hashimotoLight so it's not unmapped while being used.
 	}
 	// Verify the calculated values against the ones provided in the header
 	if !bytes.Equal(header.MixDigest[:], digest) {
