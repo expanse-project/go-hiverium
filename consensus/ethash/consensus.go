@@ -532,17 +532,10 @@ func (ethash *Ethash) verifySeal(chain consensus.ChainHeaderReader, header *type
 	}
 	// If slow-but-light PoW verification was requested (or DAG not yet ready), use an ethash cache
 	if !fulldag {
-		cache := ethash.cache(number)
-
-		size := datasetSize(number)
-		if ethash.config.PowMode == ModeTest {
-			size = 32 * 1024
-		}
 		digest, result = hashimotoLight(ethash.SealHash(header).Bytes(), header.Nonce.Uint64())
 
 		// Caches are unmapped in a finalizer. Ensure that the cache stays alive
 		// until after the call to hashimotoLight so it's not unmapped while being used.
-		runtime.KeepAlive(cache)
 	}
 	// Verify the calculated values against the ones provided in the header
 	if !bytes.Equal(header.MixDigest[:], digest) {
