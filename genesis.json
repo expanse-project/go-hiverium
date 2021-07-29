@@ -10,8 +10,8 @@
     "coinbase": "0x93decab0cd745598860f782ac1e8f046cb99e898",
     "config": {
         "chainId": 10,
-        "frkhash": {},
-    }
+        "frkhash": {}
+    },
     "alloc": {
             "0x751329B3A2a92FBEffDAC3Eaa5F9fBeA7584a0bC": {
                 "balance": "10000000000000000000000000"
