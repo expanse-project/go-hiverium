@@ -20,6 +20,7 @@ import (
 	"bytes"
 	"errors"
 	"fmt"
+	"log"
 	"math/big"
 	"runtime"
 	"time"
@@ -345,12 +346,11 @@ var (
 	big2          = big.NewInt(2)
 	big9          = big.NewInt(9)
 	big10         = big.NewInt(10)
-	big15					= big.NewInt(15)
+	big15         = big.NewInt(15)
 	big30         = big.NewInt(30)
 	big60         = big.NewInt(60)
 	bigMinus99    = big.NewInt(-99)
 )
-
 
 // calcDifficultyByzantium is the difficulty adjustment algorithm. It returns
 // the difficulty that a new block should have when created at time given the
@@ -399,43 +399,42 @@ func calcDifficultyByzantium(time uint64, parent *types.Header) *big.Int {
 // how uncles affect the calculation
 func calcDifficultyConstantinople(time uint64, parent *types.Header) *big.Int {
 
-		// https://github.com/ethereum/EIPs/issues/100.
-		// algorithm:
-		// diff = (parent_diff +
-		//         (parent_diff / 2048 * max((2 if len(parent.uncles) else 1) - ((timestamp - parent.timestamp) // 9), -99))
-		//        ) + 2^(periodCount - 2)
+	// https://github.com/ethereum/EIPs/issues/100.
+	// algorithm:
+	// diff = (parent_diff +
+	//         (parent_diff / 2048 * max((2 if len(parent.uncles) else 1) - ((timestamp - parent.timestamp) // 9), -99))
+	//        ) + 2^(periodCount - 2)
 
-		bigTime := new(big.Int).SetUint64(time)
-		bigParentTime := new(big.Int).SetUint64(parent.Time)
+	bigTime := new(big.Int).SetUint64(time)
+	bigParentTime := new(big.Int).SetUint64(parent.Time)
 
-		// holds intermediate values to make the algo easier to read & audit
-		x := new(big.Int)
-		y := new(big.Int)
+	// holds intermediate values to make the algo easier to read & audit
+	x := new(big.Int)
+	y := new(big.Int)
 
-		// (2 if len(parent_uncles) else 1) - (block_timestamp - parent_timestamp) // 9
-		x.Sub(bigTime, bigParentTime)
-		x.Div(x, big15)
-		if parent.UncleHash == types.EmptyUncleHash {
-			x.Sub(big1, x)
-		} else {
-			x.Sub(big2, x)
-		}
-		// max((2 if len(parent_uncles) else 1) - (block_timestamp - parent_timestamp) // 9, -99)
-		if x.Cmp(bigMinus99) < 0 {
-			x.Set(bigMinus99)
-		}
-		// parent_diff + (parent_diff / 2048 * max((2 if len(parent.uncles) else 1) - ((timestamp - parent.timestamp) // 9), -99))
-		y.Div(parent.Difficulty, params.DifficultyBoundDivisor2)
-		x.Mul(y, x)
-		x.Add(parent.Difficulty, x)
+	// (2 if len(parent_uncles) else 1) - (block_timestamp - parent_timestamp) // 9
+	x.Sub(bigTime, bigParentTime)
+	x.Div(x, big15)
+	if parent.UncleHash == types.EmptyUncleHash {
+		x.Sub(big1, x)
+	} else {
+		x.Sub(big2, x)
+	}
+	// max((2 if len(parent_uncles) else 1) - (block_timestamp - parent_timestamp) // 9, -99)
+	if x.Cmp(bigMinus99) < 0 {
+		x.Set(bigMinus99)
+	}
+	// parent_diff + (parent_diff / 2048 * max((2 if len(parent.uncles) else 1) - ((timestamp - parent.timestamp) // 9), -99))
+	y.Div(parent.Difficulty, params.DifficultyBoundDivisor2)
+	x.Mul(y, x)
+	x.Add(parent.Difficulty, x)
 
-		// minimum difficulty can ever be (before exponential factor)
-		if x.Cmp(params.MinimumDifficulty) < 0 {
-			x.Set(params.MinimumDifficulty)
-		}
+	// minimum difficulty can ever be (before exponential factor)
+	if x.Cmp(params.MinimumDifficulty) < 0 {
+		x.Set(params.MinimumDifficulty)
+	}
 
-		return x
-
+	return x
 
 }
 
@@ -521,12 +520,23 @@ func calcDifficultyFrontier(time uint64, parent *types.Header) *big.Int {
 // Exported for fuzzing
 var FrontierDifficultyCalulator = calcDifficultyFrontier
 var HomesteadDifficultyCalulator = calcDifficultyHomestead
+
 //var DynamicDifficultyCalculator = makeDifficultyCalculator
 
 // verifySeal checks whether a block satisfies the PoW difficulty requirements,
 // either using the usual ethash cache for it, or alternatively using a full DAG
 // to make remote mining fast.
 func (ethash *Ethash) verifySeal(chain consensus.ChainHeaderReader, header *types.Header, fulldag bool) error {
+	phoenix := chain.Config().PhoenixBlock.Uint64()
+
+	if header.Number.Uint64() < phoenix {
+		return ethash.verifySealEthash(chain, header, fulldag)
+	}
+
+	return ethash.verifySealFrkhash(chain, header, fulldag)
+}
+
+func (ethash *Ethash) verifySealEthash(chain consensus.ChainHeaderReader, header *types.Header, fulldag bool) error {
 	// If we're running a fake PoW, accept any seal as valid
 	if ethash.config.PowMode == ModeFake || ethash.config.PowMode == ModeFullFake {
 		time.Sleep(ethash.fakeDelay)
@@ -582,6 +592,47 @@ func (ethash *Ethash) verifySeal(chain consensus.ChainHeaderReader, header *type
 	if !bytes.Equal(header.MixDigest[:], digest) {
 		return errInvalidMixDigest
 	}
+	target := new(big.Int).Div(two256, header.Difficulty)
+	if new(big.Int).SetBytes(result).Cmp(target) > 0 {
+		return errInvalidPoW
+	}
+	return nil
+}
+
+func (ethash *Ethash) verifySealFrkhash(chain consensus.ChainHeaderReader, header *types.Header, fulldag bool) error {
+	// If we're running a fake PoW, accept any seal as valid
+	if ethash.config.PowMode == ModeFake || ethash.config.PowMode == ModeFullFake {
+		time.Sleep(ethash.fakeDelay)
+		if ethash.fakeFail == header.Number.Uint64() {
+			return errInvalidPoW
+		}
+		return nil
+	}
+	// If we're running a shared PoW, delegate verification to it
+	if ethash.shared != nil {
+		return ethash.shared.verifySeal(chain, header, fulldag)
+	}
+	// Ensure that we have a valid difficulty for the block
+	if header.Difficulty.Sign() <= 0 {
+		return errInvalidDifficulty
+	}
+
+	var (
+		digest []byte
+		result []byte
+	)
+
+	digest, result = frankomoto(ethash.SealHash(header).Bytes(), header.Nonce.Uint64())
+
+	// Verify the calculated values against the ones provided in the header
+	// Mix Digest == Last 32 Bytes of the keccak512 64byte hash.
+	// log.Print("Full Header Digest: " + common.Bytes2Hex(digest) + "/n BytesToHash Digest:" + common.BytesToHash(digest).Hex())
+
+	if common.BytesToHash(header.MixDigest[:]).Hex() != common.BytesToHash(digest).Hex() {
+		log.Print("FRKHASH: Header Digest: " + common.BytesToHash(header.MixDigest[:]).Hex() + " Calculated Digest:" + common.BytesToHash(digest).Hex())
+		return errInvalidMixDigest
+	}
+
 	target := new(big.Int).Div(two256, header.Difficulty)
 	if new(big.Int).SetBytes(result).Cmp(target) > 0 {
 		return errInvalidPoW

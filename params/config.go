@@ -77,7 +77,7 @@ var (
 		MuirGlacierBlock: nil,
 		BerlinBlock:      big.NewInt(12_244_000),
 
-		PhoenixBlock: nil, // XIP5Block
+		PhoenixBlock: big.NewInt(100_000_000_000), // XIP5Block
 		Ethash:       new(EthashConfig),
 	}
 

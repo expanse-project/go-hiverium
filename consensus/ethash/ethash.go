@@ -51,7 +51,7 @@ var (
 	sharedEthash *Ethash
 
 	// algorithmRevision is the data structure version used for file naming.
-	algorithmRevision = 23
+	algorithmRevision = 24
 
 	// dumpMagic is a dataset dump header to sanity check a data dump.
 	dumpMagic = []uint32{0xbaddcafe, 0xfee1dead}

@@ -36,33 +36,6 @@ const (
 	loopAccesses       = 64      // Number of accesses in hashimoto loop
 )
 
-// hasher is a repetitive hasher allowing the same hash data structures to be
-// reused between hash runs instead of requiring new ones to be created.
-type hasher func(dest []byte, data []byte)
-
-// makeHasher creates a repetitive hasher, allowing the same hash data structures to
-// be reused between hash runs instead of requiring new ones to be created. The returned
-// function is not thread safe!
-/*
-func makeHasher(h hash.Hash) hasher {
-	// sha3.state supports Read to get the sum, use it to avoid the overhead of Sum.
-	// Read alters the state but we reset the hash before every operation.
-	type readerHash interface {
-		hash.Hash
-		Read([]byte) (int, error)
-	}
-	rh, ok := h.(readerHash)
-	if !ok {
-		panic("can't find Read method on hash")
-	}
-	outputLen := rh.Size()
-	return func(dest []byte, data []byte) {
-		rh.Reset()
-		rh.Write(data)
-		rh.Read(dest[:outputLen])
-	}
-}
-*/
 func frankomoto(hash []byte, nonce uint64) ([]byte, []byte) {
 
 	// Combine header+nonce into a 64 byte seed

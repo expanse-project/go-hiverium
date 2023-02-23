@@ -333,6 +333,29 @@ func generateDataset(dest []uint32, epoch uint64, cache []uint32) {
 	pend.Wait()
 }
 
+func frankomoto(hash []byte, nonce uint64) ([]byte, []byte) {
+
+	// Combine header+nonce into a 64 byte seed
+	digest := make([]byte, 40)
+	copy(digest, hash)
+	binary.LittleEndian.PutUint64(digest[32:], nonce)
+
+	digest = crypto.Keccak512(digest)
+
+	// Here it would be best to change digest into 32 byte slice
+	// we could use the first or second half, doesnt really matter
+	// Because common.ByteToHash in consensus.go is lobbing off the first 32 bytes
+	// We could do this here instead
+	// d0 := digest[:32] // gives us the first 32 bytes
+	d1 := digest[32:] // gives us the last 32 bytes
+	// we could use d0 as the MixDigest and keccak_256(d1) < target
+	// return d0, crypto.Keccak256(d1)
+	// ORRRRRR We could just change Keccak512 to sha256 or sha3.New256() or sha512_256 or blake2b
+	// because they would output a 32byte hash
+
+	return d1, crypto.Keccak256(digest)
+}
+
 // hashimoto aggregates data from the full dataset in order to produce our final
 // value for a particular header hash and nonce.
 func hashimoto(hash []byte, nonce uint64, size uint64, lookup func(index uint32) []uint32) ([]byte, []byte) {
