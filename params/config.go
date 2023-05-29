@@ -120,6 +120,7 @@ var (
 		MuirGlacierBlock: nil,
 		BerlinBlock:      big.NewInt(0),
 		Frkhash:          new(FrkhashConfig),
+		//Ethash: new(EthashConfig),
 	}
 
 	// RebirthTrustedCheckpoint contains the light client trusted checkpoint for the main network.

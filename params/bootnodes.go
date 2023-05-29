@@ -94,14 +94,8 @@ func KnownDNSNetwork(genesis common.Hash, protocol string) string {
 		net = "expanse"
 	case RebirthGenesisHash:
 		net = "rebirth"
-	case RopstenGenesisHash:
-		net = "ropsten"
-	case RinkebyGenesisHash:
-		net = "rinkeby"
-	case GoerliGenesisHash:
-		net = "goerli"
 	default:
 		return ""
 	}
-	return dnsPrefix + protocol + "." + net + ".ethdisco.net"
+	return dnsPrefix + protocol + "." + net + ".exp.blue"
 }

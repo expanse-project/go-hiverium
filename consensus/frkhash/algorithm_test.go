@@ -30,7 +30,7 @@ func TestFrankomoto(t *testing.T) {
 	hash := hexutil.MustDecode("0xc9149cc0386e689d789a1c2f3d5d169a61a6218ed30e74414dc736e442ef3d1f")
 	nonce := uint64(0)
 
-	wantDigest := hexutil.MustDecode("0x83c508788b56b731031b4c4f4d0e7a8b4d66e9f0c5bb436a05f404fc7f0f82365c763662184d57157ef85c4672c3a68acd6fd2e35533f55abaa13c238023b506")
+	wantDigest := hexutil.MustDecode("0x5c763662184d57157ef85c4672c3a68acd6fd2e35533f55abaa13c238023b506")
 	wantResult := hexutil.MustDecode("0x74d692675960275b0523dc248bf3d5783f13e6ec2bc045a661dd2641e95ef2e2")
 
 	digest, result := frankomoto(hash, nonce)

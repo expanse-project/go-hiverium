@@ -1,6 +1,6 @@
 {
   "config": {
-    "chainId": 2,
+    "chainId": 2222,
     "homesteadBlock": 0,
     "eip150Block": 0,
     "eip150Hash": "0xa08955de94391af647125c10858b7b352c83bf7708e66e3db05d59a763aae965",
@@ -11,6 +11,7 @@
     "petersburgBlock": 0,
     "istanbulBlock": 0,
     "berlinBlock": 0,
+    "phoenixBlock": 100,
     "ethash": {}
   },
   "nonce": "0x214652414e4b4f21",

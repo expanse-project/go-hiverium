@@ -140,7 +140,7 @@ func TestDifficultyCalculators(t *testing.T) {
 }
 
 func BenchmarkDifficultyCalculator(b *testing.B) {
-	x1 := makeDifficultyCalculator(big.NewInt(1000000))
+	x1 := MakeDifficultyCalculatorU256(big.NewInt(1000000))
 	x2 := MakeDifficultyCalculatorU256(big.NewInt(1000000))
 	h := &types.Header{
 		ParentHash: common.Hash{},

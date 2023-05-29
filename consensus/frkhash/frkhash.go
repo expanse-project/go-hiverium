@@ -73,8 +73,6 @@ type Config struct {
 	NotifyFull bool
 
 	Log log.Logger `toml:"-"`
-
-	XIP5Block *uint64 `toml:"-"`
 }
 
 // Frkhash is a consensus engine based on proof-of-work implementing the frkhash

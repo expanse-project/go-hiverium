@@ -235,7 +235,6 @@ func CreateConsensusEngine(stack *node.Node, chainConfig *params.ChainConfig, co
 			DatasetsOnDisk:   config.DatasetsOnDisk,
 			DatasetsLockMmap: config.DatasetsLockMmap,
 			NotifyFull:       config.NotifyFull,
-			XIP5Block:        config.XIP5Block,
 		}, notify, noverify)
 		engine.SetThreads(-1) // Disable CPU mining
 		return engine
@@ -252,7 +251,6 @@ func CreateConsensusEngine(stack *node.Node, chainConfig *params.ChainConfig, co
 	engine := frkhash.New(frkhash.Config{
 		PowMode:    config.PowMode,
 		NotifyFull: config.NotifyFull,
-		XIP5Block:  config.XIP5Block,
 	}, notify, noverify)
 	engine.SetThreads(-1) // Disable CPU mining
 
