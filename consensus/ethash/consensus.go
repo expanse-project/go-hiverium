@@ -527,7 +527,8 @@ var HomesteadDifficultyCalulator = calcDifficultyHomestead
 // either using the usual ethash cache for it, or alternatively using a full DAG
 // to make remote mining fast.
 func (ethash *Ethash) verifySeal(chain consensus.ChainHeaderReader, header *types.Header, fulldag bool) error {
-	phoenix := chain.Config().PhoenixBlock.Uint64()
+	//phoenix := chain.Config().PhoenixBlock.Uint64()
+	phoenix := ethash.config.PhoenixBlock
 
 	if header.Number.Uint64() < phoenix {
 		return ethash.verifySealEthash(chain, header, fulldag)
