@@ -65,6 +65,7 @@ var Defaults = Config{
 		DatasetsInMem:    1,
 		DatasetsOnDisk:   2,
 		DatasetsLockMmap: false,
+		PhoenixBlock:     100000000000,
 	},
 	NetworkId:               1,
 	TxLookupLimit:           2350000,
@@ -235,6 +236,7 @@ func CreateConsensusEngine(stack *node.Node, chainConfig *params.ChainConfig, co
 			DatasetsOnDisk:   config.DatasetsOnDisk,
 			DatasetsLockMmap: config.DatasetsLockMmap,
 			NotifyFull:       config.NotifyFull,
+			PhoenixBlock:     chainConfig.PhoenixBlock.Uint64(),
 		}, notify, noverify)
 		engine.SetThreads(-1) // Disable CPU mining
 		return engine

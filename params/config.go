@@ -52,7 +52,6 @@ var CheckpointOracles = map[common.Hash]*CheckpointOracleConfig{
 	RopstenGenesisHash: RopstenCheckpointOracle,
 	RinkebyGenesisHash: RinkebyCheckpointOracle,
 	GoerliGenesisHash:  GoerliCheckpointOracle,
-	RebirthGenesisHash: RebirthCheckpointOracle,
 }
 
 var (
@@ -100,7 +99,7 @@ var (
 
 	// RebirthChainConfig
 	RebirthChainConfig = &ChainConfig{
-		ChainID:             big.NewInt(2),
+		ChainID:             big.NewInt(2222),
 		HomesteadBlock:      big.NewInt(0),
 		DAOForkBlock:        nil,
 		DAOForkSupport:      false,
@@ -114,31 +113,38 @@ var (
 		//PirlGuardBlock:  0,
 		//PirlGuardLength: 0,
 
-		PhoenixBlock: big.NewInt(0),
+		PhoenixBlock: big.NewInt(100),
 
 		IstanbulBlock:    big.NewInt(0),
 		MuirGlacierBlock: nil,
 		BerlinBlock:      big.NewInt(0),
-		Frkhash:          new(FrkhashConfig),
+		Ethash:           new(EthashConfig),
 		//Ethash: new(EthashConfig),
 	}
 
 	// RebirthTrustedCheckpoint contains the light client trusted checkpoint for the main network.
+	// cht: {
+	//     bloomRoot: "0x0000000000000000000000000000000000000000000000000000000000000000",
+	//     chtRoot: "0x0000000000000000000000000000000000000000000000000000000000000000",
+	//     sectionHead: "0x0000000000000000000000000000000000000000000000000000000000000000",
+	//     sectionIndex: 0
+	//   },
+
 	RebirthTrustedCheckpoint = &TrustedCheckpoint{
-		SectionIndex: 2,
-		SectionHead:  common.HexToHash("0xc5992617a2663ff93effcd2bf2d0b0e12546fb2bb8084edc48d518c5c9e3f638"),
-		CHTRoot:      common.HexToHash("0xede2d4ffeaa8506ccb32279bbc360f12d381b674b18b6e30b6921dc5538155f2"),
-		BloomRoot:    common.HexToHash("0x56e81f171bcc55a6ff8345e692c0f86e5b48e01b996cadc001622fb5e363b421"),
+		SectionIndex: 0,
+		SectionHead:  common.HexToHash("0x0000000000000000000000000000000000000000000000000000000000000000"),
+		CHTRoot:      common.HexToHash("0x0000000000000000000000000000000000000000000000000000000000000000"),
+		BloomRoot:    common.HexToHash("0x0000000000000000000000000000000000000000000000000000000000000000"),
 	}
 
-	// RebirthCheckpointOracle contains a set of configs for the main network oracle.
-	RebirthCheckpointOracle = &CheckpointOracleConfig{
-		Address: common.HexToAddress("0x9a9070028361F7AAbeB3f2F2Dc07F82C4a98A02a"),
-		Signers: []common.Address{
-			common.HexToAddress("0xbb94f0ceb32257275b2a7a9c094c13e469b4563e"), // exp-org
-		},
-		Threshold: 1,
-	}
+	// // RebirthCheckpointOracle contains a set of configs for the main network oracle.
+	// RebirthCheckpointOracle = &CheckpointOracleConfig{
+	// 	Address: common.HexToAddress("0x9a9070028361F7AAbeB3f2F2Dc07F82C4a98A02a"),
+	// 	Signers: []common.Address{
+	// 		common.HexToAddress("0xbb94f0ceb32257275b2a7a9c094c13e469b4563e"), // exp-org
+	// 	},
+	// 	Threshold: 1,
+	// }
 
 	// RopstenChainConfig contains the chain parameters to run a node on the Ropsten test network.
 	RopstenChainConfig = &ChainConfig{

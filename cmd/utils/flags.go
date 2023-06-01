@@ -1867,6 +1867,7 @@ func MakeChain(ctx *cli.Context, stack *node.Node) (chain *core.BlockChain, chai
 				DatasetsInMem:    ethconfig.Defaults.Ethash.DatasetsInMem,
 				DatasetsOnDisk:   ethconfig.Defaults.Ethash.DatasetsOnDisk,
 				DatasetsLockMmap: ethconfig.Defaults.Ethash.DatasetsLockMmap,
+				PhoenixBlock:     ethconfig.Defaults.Ethash.PhoenixBlock,
 			}, nil, false)
 		}
 	}
