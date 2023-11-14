@@ -74,18 +74,18 @@ var (
 
 		IstanbulBlock:    big.NewInt(3_050_000),
 		MuirGlacierBlock: nil,
-		BerlinBlock:      big.NewInt(12_244_000),
+		BerlinBlock:      big.NewInt(120_244_000),
 
-		PhoenixBlock: big.NewInt(100_000_000_000), // XIP5Block
+		PhoenixBlock: big.NewInt(8_470_000), // XIP5Block
 		Ethash:       new(EthashConfig),
 	}
 
 	// MainnetTrustedCheckpoint contains the light client trusted checkpoint for the main network.
 	MainnetTrustedCheckpoint = &TrustedCheckpoint{
-		SectionIndex: 147,
-		SectionHead:  common.HexToHash("0x63bf17b66ec581f4a048a62596c099e0c58040a6861e565a4fb54585c3c8c3de"),
-		CHTRoot:      common.HexToHash("0x10981e2a6949282381d7c91163aab801ca0411ddb3257726b990e68b75b70523"),
-		BloomRoot:    common.HexToHash("0x2a608d377cd4b57b5c74a7c7a6a20a4062c86a807e2792b34ce4e597d1f53fac"),
+		SectionIndex: 256,
+		SectionHead:  common.HexToHash("0x5cd22b72e5c76bcb53b72095907eab3c5beb1fbd0e1304f305e690247deef185"),
+		CHTRoot:      common.HexToHash("0xc5ced7d4828340c6cccadcd90b09e010d9ac99124479064e0a8415e7ec2aa673"),
+		BloomRoot:    common.HexToHash("0xf5e0262ffbec4dd0a7fc18b61e6587954fb1ecc5bc02a6569113ca79dd69a775"),
 	}
 
 	// MainnetCheckpointOracle contains a set of configs for the main network oracle.
