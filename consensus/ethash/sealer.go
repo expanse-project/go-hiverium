@@ -239,9 +239,9 @@ search:
 				// Seal and return a block (if still needed)
 				select {
 				case found <- block.WithSeal(header):
-					logger.Trace("ethash nonce found and reported", "attempts", nonce-seed, "nonce", nonce)
+					logger.Trace("frkhash nonce found and reported", "attempts", nonce-seed, "nonce", nonce)
 				case <-abort:
-					logger.Trace("ethash nonce found but discarded", "attempts", nonce-seed, "nonce", nonce)
+					logger.Trace("frkhas nonce found but discarded", "attempts", nonce-seed, "nonce", nonce)
 				}
 				break search
 			}
