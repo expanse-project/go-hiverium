@@ -20,7 +20,7 @@ import (
 	"context"
 	"sync"
 
-	ethereum "github.com/expanse-org/go-expanse"
+	"github.com/expanse-org/go-expanse"
 	"github.com/expanse-org/go-expanse/event"
 	"github.com/expanse-org/go-expanse/rpc"
 )

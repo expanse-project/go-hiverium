@@ -24,7 +24,7 @@ import (
 	"time"
 
 	"github.com/expanse-org/go-expanse/common/mclock"
-	"github.com/expanse-org/go-expanse/eth"
+	"github.com/expanse-org/go-expanse/eth/ethconfig"
 	"github.com/expanse-org/go-expanse/ethdb"
 	"github.com/expanse-org/go-expanse/les/flowcontrol"
 	"github.com/expanse-org/go-expanse/log"
@@ -137,7 +137,7 @@ type costTracker struct {
 
 // newCostTracker creates a cost tracker and loads the cost factor statistics from the database.
 // It also returns the minimum capacity that can be assigned to any peer.
-func newCostTracker(db ethdb.Database, config *eth.Config) (*costTracker, uint64) {
+func newCostTracker(db ethdb.Database, config *ethconfig.Config) (*costTracker, uint64) {
 	utilTarget := float64(config.LightServ) * flowcontrol.FixedPointMultiplier / 100
 	ct := &costTracker{
 		db:         db,

@@ -24,7 +24,7 @@ import (
 	"sync"
 	"time"
 
-	ethereum "github.com/expanse-org/go-expanse"
+	"github.com/expanse-org/go-expanse"
 	"github.com/expanse-org/go-expanse/common"
 	"github.com/expanse-org/go-expanse/core"
 	"github.com/expanse-org/go-expanse/core/rawdb"

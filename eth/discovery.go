@@ -19,8 +19,6 @@ package eth
 import (
 	"github.com/expanse-org/go-expanse/core"
 	"github.com/expanse-org/go-expanse/core/forkid"
-	"github.com/expanse-org/go-expanse/p2p"
-	"github.com/expanse-org/go-expanse/p2p/dnsdisc"
 	"github.com/expanse-org/go-expanse/p2p/enode"
 	"github.com/expanse-org/go-expanse/rlp"
 )
@@ -36,7 +34,7 @@ type ethEntry struct {
 
 // ENRKey implements enr.Entry.
 func (e ethEntry) ENRKey() string {
-	return "eth"
+	return "exp"
 }
 
 // startEthEntryUpdate starts the ENR updater loop.
@@ -60,14 +58,6 @@ func (eth *Ethereum) startEthEntryUpdate(ln *enode.LocalNode) {
 }
 
 func (eth *Ethereum) currentEthEntry() *ethEntry {
-	return &ethEntry{ForkID: forkid.NewID(eth.blockchain)}
-}
-
-// setupDiscovery creates the node discovery source for the eth protocol.
-func (eth *Ethereum) setupDiscovery(cfg *p2p.Config) (enode.Iterator, error) {
-	if cfg.NoDiscovery || len(eth.config.DiscoveryURLs) == 0 {
-		return nil, nil
-	}
-	client := dnsdisc.NewClient(dnsdisc.Config{})
-	return client.NewIterator(eth.config.DiscoveryURLs...)
+	return &ethEntry{ForkID: forkid.NewID(eth.blockchain.Config(), eth.blockchain.Genesis().Hash(),
+		eth.blockchain.CurrentHeader().Number.Uint64())}
 }

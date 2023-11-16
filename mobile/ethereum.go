@@ -21,7 +21,7 @@ package gexp
 import (
 	"errors"
 
-	ethereum "github.com/expanse-org/go-expanse"
+	"github.com/expanse-org/go-expanse"
 	"github.com/expanse-org/go-expanse/common"
 )
 

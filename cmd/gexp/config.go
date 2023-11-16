@@ -20,18 +20,20 @@ import (
 	"bufio"
 	"errors"
 	"fmt"
+	"math/big"
 	"os"
 	"reflect"
 	"unicode"
 
-	cli "gopkg.in/urfave/cli.v1"
+	"gopkg.in/urfave/cli.v1"
 
 	"github.com/expanse-org/go-expanse/cmd/utils"
-	"github.com/expanse-org/go-expanse/eth"
+	"github.com/expanse-org/go-expanse/eth/catalyst"
+	"github.com/expanse-org/go-expanse/eth/ethconfig"
 	"github.com/expanse-org/go-expanse/internal/ethapi"
+	"github.com/expanse-org/go-expanse/metrics"
 	"github.com/expanse-org/go-expanse/node"
 	"github.com/expanse-org/go-expanse/params"
-	whisper "github.com/expanse-org/go-expanse/whisper/whisperv6"
 	"github.com/naoina/toml"
 )
 
@@ -41,7 +43,7 @@ var (
 		Name:        "dumpconfig",
 		Usage:       "Show configuration values",
 		ArgsUsage:   "",
-		Flags:       append(append(nodeFlags, rpcFlags...), whisperFlags...),
+		Flags:       append(nodeFlags, rpcFlags...),
 		Category:    "MISCELLANEOUS COMMANDS",
 		Description: `The dumpconfig command shows configuration values.`,
 	}
@@ -74,10 +76,10 @@ type ethstatsConfig struct {
 }
 
 type gethConfig struct {
-	Eth      eth.Config
-	Shh      whisper.Config
+	Eth      ethconfig.Config
 	Node     node.Config
 	Ethstats ethstatsConfig
+	Metrics  metrics.Config
 }
 
 func loadConfig(file string, cfg *gethConfig) error {
@@ -99,8 +101,8 @@ func defaultNodeConfig() node.Config {
 	cfg := node.DefaultConfig
 	cfg.Name = clientIdentifier
 	cfg.Version = params.VersionWithCommit(gitCommit, gitDate)
-	cfg.HTTPModules = append(cfg.HTTPModules, "eth")
-	cfg.WSModules = append(cfg.WSModules, "eth")
+	cfg.HTTPModules = append(cfg.HTTPModules, "exp")
+	cfg.WSModules = append(cfg.WSModules, "exp")
 	cfg.IPCPath = "gexp.ipc"
 	return cfg
 }
@@ -109,9 +111,9 @@ func defaultNodeConfig() node.Config {
 func makeConfigNode(ctx *cli.Context) (*node.Node, gethConfig) {
 	// Load defaults.
 	cfg := gethConfig{
-		Eth:  eth.DefaultConfig,
-		Shh:  whisper.DefaultConfig,
-		Node: defaultNodeConfig(),
+		Eth:     ethconfig.Defaults,
+		Node:    defaultNodeConfig(),
+		Metrics: metrics.DefaultConfig,
 	}
 
 	// Load config file.
@@ -131,42 +133,29 @@ func makeConfigNode(ctx *cli.Context) (*node.Node, gethConfig) {
 	if ctx.GlobalIsSet(utils.EthStatsURLFlag.Name) {
 		cfg.Ethstats.URL = ctx.GlobalString(utils.EthStatsURLFlag.Name)
 	}
-	utils.SetShhConfig(ctx, stack, &cfg.Shh)
+	applyMetricConfig(ctx, &cfg)
 
 	return stack, cfg
-}
-
-// enableWhisper returns true in case one of the whisper flags is set.
-func enableWhisper(ctx *cli.Context) bool {
-	for _, flag := range whisperFlags {
-		if ctx.GlobalIsSet(flag.GetName()) {
-			return true
-		}
-	}
-	return false
 }
 
 // makeFullNode loads geth configuration and creates the Ethereum backend.
 func makeFullNode(ctx *cli.Context) (*node.Node, ethapi.Backend) {
 	stack, cfg := makeConfigNode(ctx)
-
-	backend := utils.RegisterEthService(stack, &cfg.Eth)
-
-	// Whisper must be explicitly enabled by specifying at least 1 whisper flag or in dev mode
-	shhEnabled := enableWhisper(ctx)
-	shhAutoEnabled := !ctx.GlobalIsSet(utils.WhisperEnabledFlag.Name) && ctx.GlobalIsSet(utils.DeveloperFlag.Name)
-	if shhEnabled || shhAutoEnabled {
-		if ctx.GlobalIsSet(utils.WhisperMaxMessageSizeFlag.Name) {
-			cfg.Shh.MaxMessageSize = uint32(ctx.Int(utils.WhisperMaxMessageSizeFlag.Name))
-		}
-		if ctx.GlobalIsSet(utils.WhisperMinPOWFlag.Name) {
-			cfg.Shh.MinimumAcceptedPOW = ctx.Float64(utils.WhisperMinPOWFlag.Name)
-		}
-		if ctx.GlobalIsSet(utils.WhisperRestrictConnectionBetweenLightClientsFlag.Name) {
-			cfg.Shh.RestrictConnectionBetweenLightClients = true
-		}
-		utils.RegisterShhService(stack, &cfg.Shh)
+	if ctx.GlobalIsSet(utils.OverrideBerlinFlag.Name) {
+		cfg.Eth.OverrideBerlin = new(big.Int).SetUint64(ctx.GlobalUint64(utils.OverrideBerlinFlag.Name))
 	}
+	backend, eth := utils.RegisterEthService(stack, &cfg.Eth)
+
+	// Configure catalyst.
+	if ctx.GlobalBool(utils.CatalystFlag.Name) {
+		if eth == nil {
+			utils.Fatalf("Catalyst does not work in light client mode.")
+		}
+		if err := catalyst.Register(stack, eth); err != nil {
+			utils.Fatalf("%v", err)
+		}
+	}
+
 	// Configure GraphQL if requested
 	if ctx.GlobalIsSet(utils.GraphQLEnabledFlag.Name) {
 		utils.RegisterGraphQLService(stack, backend, cfg.Node)
@@ -205,4 +194,37 @@ func dumpConfig(ctx *cli.Context) error {
 	dump.Write(out)
 
 	return nil
+}
+
+func applyMetricConfig(ctx *cli.Context, cfg *gethConfig) {
+	if ctx.GlobalIsSet(utils.MetricsEnabledFlag.Name) {
+		cfg.Metrics.Enabled = ctx.GlobalBool(utils.MetricsEnabledFlag.Name)
+	}
+	if ctx.GlobalIsSet(utils.MetricsEnabledExpensiveFlag.Name) {
+		cfg.Metrics.EnabledExpensive = ctx.GlobalBool(utils.MetricsEnabledExpensiveFlag.Name)
+	}
+	if ctx.GlobalIsSet(utils.MetricsHTTPFlag.Name) {
+		cfg.Metrics.HTTP = ctx.GlobalString(utils.MetricsHTTPFlag.Name)
+	}
+	if ctx.GlobalIsSet(utils.MetricsPortFlag.Name) {
+		cfg.Metrics.Port = ctx.GlobalInt(utils.MetricsPortFlag.Name)
+	}
+	if ctx.GlobalIsSet(utils.MetricsEnableInfluxDBFlag.Name) {
+		cfg.Metrics.EnableInfluxDB = ctx.GlobalBool(utils.MetricsEnableInfluxDBFlag.Name)
+	}
+	if ctx.GlobalIsSet(utils.MetricsInfluxDBEndpointFlag.Name) {
+		cfg.Metrics.InfluxDBEndpoint = ctx.GlobalString(utils.MetricsInfluxDBEndpointFlag.Name)
+	}
+	if ctx.GlobalIsSet(utils.MetricsInfluxDBDatabaseFlag.Name) {
+		cfg.Metrics.InfluxDBDatabase = ctx.GlobalString(utils.MetricsInfluxDBDatabaseFlag.Name)
+	}
+	if ctx.GlobalIsSet(utils.MetricsInfluxDBUsernameFlag.Name) {
+		cfg.Metrics.InfluxDBUsername = ctx.GlobalString(utils.MetricsInfluxDBUsernameFlag.Name)
+	}
+	if ctx.GlobalIsSet(utils.MetricsInfluxDBPasswordFlag.Name) {
+		cfg.Metrics.InfluxDBPassword = ctx.GlobalString(utils.MetricsInfluxDBPasswordFlag.Name)
+	}
+	if ctx.GlobalIsSet(utils.MetricsInfluxDBTagsFlag.Name) {
+		cfg.Metrics.InfluxDBTags = ctx.GlobalString(utils.MetricsInfluxDBTagsFlag.Name)
+	}
 }

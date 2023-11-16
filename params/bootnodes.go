@@ -21,12 +21,6 @@ import "github.com/expanse-org/go-expanse/common"
 // MainnetBootnodes are the enode URLs of the P2P bootstrap nodes running on
 // the main Ethereum network.
 var MainnetBootnodes = []string{
-	// Parity node
-	"enode://8a7da73aefabebe6a92ec563f7675a7a3890745ed7fa1539ecc09607fde3bf14fbf4677a2473c00d21a85e1b975c23945cd9ca4efc082a7a79b0a74c80234cf1@128.199.51.233:30303",
-	"enode://63fe8f85b325d869329bc14e523690a01609223c8dbb8655d0c9cba14a85bd06eddfe2a9a868069a75b43f45195832defb497b87cf4c35317aa2452feb2cdf96@159.65.75.207:30303",
-	"enode://fab711ec49d3cfe02cdd705cf45a0f00caa5f83bf46f694a4a74823d078469d874617e4cdfe01660302957879877d6cabd292f3c87ee269d78c62e820f779027@107.170.255.60:42786",
-	"enode://b6057791adb9cc1b8404c01a1c2fd121a985958865eb662650cafd8b9e1403618809fac4b25dd4488f7f2b0f85a0dc0424002f261022c3785355c7effbdb931f@159.89.40.251:42786",
-
 	// EXP/DEV Go Bootnodes
 	"enode://7f335a047654f3e70d6f91312a7cf89c39704011f1a584e2698250db3d63817e74b88e26b7854111e16b2c9d0c7173c05419aeee2d0321850227b126d8b1be3f@46.101.156.249:42786",
 	"enode://df872f81e25f72356152b44cab662caf1f2e57c3a156ecd20e9ac9246272af68a2031b4239a0bc831f2c6ab34733a041464d46b3ea36dce88d6c11714446e06b@178.62.208.109:42786",
@@ -34,7 +28,11 @@ var MainnetBootnodes = []string{
 	"enode://5f6c625bf287e3c08aad568de42d868781e961cbda805c8397cfb7be97e229419bef9a5a25a75f97632787106bba8a7caf9060fab3887ad2cfbeb182ab0f433f@46.101.182.53:42786",
 	"enode://d33a8d4c2c38a08971ed975b750f21d54c927c0bf7415931e214465a8d01651ecffe4401e1db913f398383381413c78105656d665d83f385244ab302d6138414@128.199.183.48:42786",
 	"enode://df872f81e25f72356152b44cab662caf1f2e57c3a156ecd20e9ac9246272af68a2031b4239a0bc831f2c6ab34733a041464d46b3ea36dce88d6c11714446e06b@178.62.208.109:42786",
-	"enode://f6f0d6b9b7d02ec9e8e4a16e38675f3621ea5e69860c739a65c1597ca28aefb3cec7a6d84e471ac927d42a1b64c1cbdefad75e7ce8872d57548ddcece20afdd1@159.203.64.95:42786",
+	//"enode://f6f0d6b9b7d02ec9e8e4a16e38675f3621ea5e69860c739a65c1597ca28aefb3cec7a6d84e471ac927d42a1b64c1cbdefad75e7ce8872d57548ddcece20afdd1@159.203.64.95:42786",
+}
+
+var RebirthBootnodes = []string{
+	"enode://54d448a71d491eed10337caba6f593986e01bb09081d1a61d621e91748b872ff5da2161d58b7ca7d87c1dafb4ec59c28b28da1f41b317075296163fa3603c549@137.184.69.182:42786",
 }
 
 // RopstenBootnodes are the enode URLs of the P2P bootstrap nodes running on the
@@ -61,20 +59,29 @@ var GoerliBootnodes = []string{
 	"enode://011f758e6552d105183b1761c5e2dea0111bc20fd5f6422bc7f91e0fabbec9a6595caf6239b37feb773dddd3f87240d99d859431891e4a642cf2a0a9e6cbb98a@51.141.78.53:30303",
 	"enode://176b9417f511d05b6b2cf3e34b756cf0a7096b3094572a8f6ef4cdcb9d1f9d00683bf0f83347eebdf3b81c3521c2332086d9592802230bf528eaf606a1d9677b@13.93.54.137:30303",
 	"enode://46add44b9f13965f7b9875ac6b85f016f341012d84f975377573800a863526f4da19ae2c620ec73d11591fa9510e992ecc03ad0751f53cc02f7c7ed6d55c7291@94.237.54.114:30313",
-	"enode://c1f8b7c2ac4453271fa07d8e9ecf9a2e8285aa0bd0c07df0131f47153306b0736fd3db8924e7a9bf0bed6b1d8d4f87362a71b033dc7c64547728d953e43e59b2@52.64.155.147:30303",
-	"enode://f4a9c6ee28586009fb5a96c8af13a58ed6d8315a9eee4772212c1d4d9cebe5a8b8a78ea4434f318726317d04a3f531a1ef0420cf9752605a562cfe858c46e263@213.186.16.82:30303",
+	"enode://b5948a2d3e9d486c4d75bf32713221c2bd6cf86463302339299bd227dc2e276cd5a1c7ca4f43a0e9122fe9af884efed563bd2a1fd28661f3b5f5ad7bf1de5949@18.218.250.66:30303",
 
 	// Ethereum Foundation bootnode
 	"enode://a61215641fb8714a373c80edbfa0ea8878243193f57c96eeb44d0bc019ef295abd4e044fd619bfc4c59731a73fb79afe84e9ab6da0c743ceb479cbb6d263fa91@3.11.147.67:30303",
+
+	// Goerli Initiative bootnodes
+	"enode://a869b02cec167211fb4815a82941db2e7ed2936fd90e78619c53eb17753fcf0207463e3419c264e2a1dd8786de0df7e68cf99571ab8aeb7c4e51367ef186b1dd@51.15.116.226:30303",
+	"enode://807b37ee4816ecf407e9112224494b74dd5933625f655962d892f2f0f02d7fbbb3e2a94cf87a96609526f30c998fd71e93e2f53015c558ffc8b03eceaf30ee33@51.15.119.157:30303",
+	"enode://a59e33ccd2b3e52d578f1fbd70c6f9babda2650f0760d6ff3b37742fdcdfdb3defba5d56d315b40c46b70198c7621e63ffa3f987389c7118634b0fefbbdfa7fd@51.15.119.157:40303",
 }
 
-// YoloV1Bootnodes are the enode URLs of the P2P bootstrap nodes running on the
-// YOLOv1 ephemeral test network.
-var YoloV1Bootnodes = []string{
-	"enode://9e1096aa59862a6f164994cb5cb16f5124d6c992cdbf4535ff7dea43ea1512afe5448dca9df1b7ab0726129603f1a3336b631e4d7a1a44c94daddd03241587f9@35.178.210.161:30303",
+// YoloV3Bootnodes are the enode URLs of the P2P bootstrap nodes running on the
+// YOLOv3 ephemeral test network.
+// TODO: Set Yolov3 bootnodes
+var YoloV3Bootnodes = []string{
+	"enode://9e1096aa59862a6f164994cb5cb16f5124d6c992cdbf4535ff7dea43ea1512afe5448dca9df1b7ab0726129603f1a3336b631e4d7a1a44c94daddd03241587f9@3.9.20.133:30303",
 }
 
-const dnsPrefix = "enrtree://AKA3AM6LPBYEUDMVNU3BSVQJ5AD45Y7YPOHJLEF6W26QOE4VTUDPE@"
+var V5Bootnodes = []string{
+	"enr:-J24QNp5DQKEMmOUMavO96CJPpD-15rKrkqmfPzH2JOD3hOzK6UFmQ9clpoOANcUriXqAnPLzKXwzoHmn4-b5Fx2eR-BiINldGjHxoQk81dAgIJpZIJ2NIJpcIRo7Ht2g2xlc8CJc2VjcDI1NmsxoQKXlt_hRqPXoXSjf06dakI8zI-0h0YlkoyBWw8c1xNdI4N0Y3CCpyKDdWRwgqci",
+}
+
+const dnsPrefix = "enrtree://AJJYVRBUC67IMBJFRJ4ZXOGNKHJK5BWVQF5746DSRG4BZ6CDE54CK@"
 
 // KnownDNSNetwork returns the address of a public DNS-based node list for the given
 // genesis hash and protocol. See https://github.com/ethereum/discv4-dns-lists for more
@@ -83,15 +90,11 @@ func KnownDNSNetwork(genesis common.Hash, protocol string) string {
 	var net string
 	switch genesis {
 	case MainnetGenesisHash:
-		net = "mainnet"
-	case RopstenGenesisHash:
-		net = "ropsten"
-	case RinkebyGenesisHash:
-		net = "rinkeby"
-	case GoerliGenesisHash:
-		net = "goerli"
+		net = "expanse"
+	case RebirthGenesisHash:
+		net = "rebirth"
 	default:
 		return ""
 	}
-	return dnsPrefix + protocol + "." + net + ".ethdisco.net"
+	return dnsPrefix + protocol + "." + net + ".exp.blue"
 }

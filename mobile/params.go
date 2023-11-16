@@ -22,7 +22,7 @@ import (
 	"encoding/json"
 
 	"github.com/expanse-org/go-expanse/core"
-	"github.com/expanse-org/go-expanse/p2p/discv5"
+	"github.com/expanse-org/go-expanse/p2p/enode"
 	"github.com/expanse-org/go-expanse/params"
 )
 
@@ -30,6 +30,15 @@ import (
 // is actually empty since that defaults to the hard coded binary genesis block.
 func MainnetGenesis() string {
 	return ""
+}
+
+// RebirthGenesis returns the JSON spec to use for the Rebirth test network.
+func RebirthGenesis() string {
+	enc, err := json.Marshal(core.DefaultRebirthGenesisBlock())
+	if err != nil {
+		panic(err)
+	}
+	return string(enc)
 }
 
 // RopstenGenesis returns the JSON spec to use for the Ropsten test network.
@@ -62,9 +71,13 @@ func GoerliGenesis() string {
 // FoundationBootnodes returns the enode URLs of the P2P bootstrap nodes operated
 // by the foundation running the V5 discovery protocol.
 func FoundationBootnodes() *Enodes {
-	nodes := &Enodes{nodes: make([]*discv5.Node, len(params.MainnetBootnodes))}
+	nodes := &Enodes{nodes: make([]*enode.Node, len(params.MainnetBootnodes))}
 	for i, url := range params.MainnetBootnodes {
-		nodes.nodes[i] = discv5.MustParseNode(url)
+		var err error
+		nodes.nodes[i], err = enode.Parse(enode.ValidSchemes, url)
+		if err != nil {
+			panic("invalid node URL: " + err.Error())
+		}
 	}
 	return nodes
 }

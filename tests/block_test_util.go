@@ -32,7 +32,6 @@ import (
 	"github.com/expanse-org/go-expanse/core"
 	"github.com/expanse-org/go-expanse/core/rawdb"
 	"github.com/expanse-org/go-expanse/core/state"
-	"github.com/expanse-org/go-expanse/core/state/snapshot"
 	"github.com/expanse-org/go-expanse/core/types"
 	"github.com/expanse-org/go-expanse/core/vm"
 	"github.com/expanse-org/go-expanse/params"
@@ -147,7 +146,7 @@ func (t *BlockTest) Run(snapshotter bool) error {
 	}
 	// Cross-check the snapshot-to-hash against the trie hash
 	if snapshotter {
-		if err := snapshot.VerifyState(chain.Snapshot(), chain.CurrentBlock().Root()); err != nil {
+		if err := chain.Snapshots().Verify(chain.CurrentBlock().Root()); err != nil {
 			return err
 		}
 	}

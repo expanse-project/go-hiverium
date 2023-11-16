@@ -34,7 +34,7 @@ var (
 	gitDate   string
 	app       = &cli.App{
 		Name:        filepath.Base(os.Args[0]),
-		Usage:       "go-ethereum devp2p tool",
+		Usage:       "go-expanse devp2p tool",
 		Version:     params.VersionWithCommit(gitCommit, gitDate),
 		Writer:      os.Stdout,
 		HideVersion: true,
@@ -63,6 +63,7 @@ func init() {
 		discv5Command,
 		dnsCommand,
 		nodesetCommand,
+		rlpxCommand,
 	}
 }
 
@@ -80,7 +81,7 @@ func commandHasFlag(ctx *cli.Context, flag cli.Flag) bool {
 
 // getNodeArg handles the common case of a single node descriptor argument.
 func getNodeArg(ctx *cli.Context) *enode.Node {
-	if ctx.NArg() != 1 {
+	if ctx.NArg() < 1 {
 		exit("missing node as command-line argument")
 	}
 	n, err := parseNode(ctx.Args()[0])

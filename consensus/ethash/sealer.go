@@ -50,6 +50,7 @@ var (
 // the block's difficulty requirements.
 func (ethash *Ethash) Seal(chain consensus.ChainHeaderReader, block *types.Block, results chan<- *types.Block, stop <-chan struct{}) error {
 	// If we're running a fake PoW, simply return a 0 nonce immediately
+
 	if ethash.config.PowMode == ModeFake || ethash.config.PowMode == ModeFullFake {
 		header := block.Header()
 		header.Nonce, header.MixDigest = types.BlockNonce{}, common.Hash{}
@@ -96,7 +97,7 @@ func (ethash *Ethash) Seal(chain consensus.ChainHeaderReader, block *types.Block
 		pend.Add(1)
 		go func(id int, nonce uint64) {
 			defer pend.Done()
-			ethash.mine(block, id, nonce, abort, locals)
+			ethash.mine(chain.Config().PhoenixBlock.Uint64(), block, id, nonce, abort, locals)
 		}(i, uint64(ethash.rand.Int63()))
 	}
 	// Wait until sealing is terminated or a nonce is found
@@ -129,7 +130,15 @@ func (ethash *Ethash) Seal(chain consensus.ChainHeaderReader, block *types.Block
 
 // mine is the actual proof-of-work miner that searches for a nonce starting from
 // seed that results in correct final block difficulty.
-func (ethash *Ethash) mine(block *types.Block, id int, seed uint64, abort chan struct{}, found chan *types.Block) {
+func (ethash *Ethash) mine(phoenixBlock uint64, block *types.Block, id int, seed uint64, abort chan struct{}, found chan *types.Block) {
+	if block.Header().Number.Uint64() < phoenixBlock {
+		ethash.mineEthash(block, id, seed, abort, found)
+	}
+
+	ethash.mineFrkhash(block, id, seed, abort, found)
+}
+
+func (ethash *Ethash) mineEthash(block *types.Block, id int, seed uint64, abort chan struct{}, found chan *types.Block) {
 	// Extract some data from the header
 	var (
 		header  = block.Header()
@@ -163,6 +172,7 @@ search:
 			}
 			// Compute the PoW value of this nonce
 			digest, result := hashimotoFull(dataset.dataset, hash, nonce)
+
 			if new(big.Int).SetBytes(result).Cmp(target) <= 0 {
 				// Correct nonce found, create a new header with it
 				header = types.CopyHeader(header)
@@ -184,6 +194,63 @@ search:
 	// Datasets are unmapped in a finalizer. Ensure that the dataset stays live
 	// during sealing so it's not unmapped while being read.
 	runtime.KeepAlive(dataset)
+}
+
+func (ethash *Ethash) mineFrkhash(block *types.Block, id int, seed uint64, abort chan struct{}, found chan *types.Block) {
+	// Extract some data from the header
+	var (
+		header = block.Header()
+		hash   = ethash.SealHash(header).Bytes()
+		target = new(big.Int).Div(two256, header.Difficulty)
+		//number  = header.Number.Uint64()
+		//dataset = ethash.dataset(number, false)
+	)
+	// Start generating random nonces until we abort or find a good one
+	var (
+		attempts = int64(0)
+		nonce    = seed
+	)
+	logger := ethash.config.Log.New("miner", id)
+	logger.Trace("Started ethash search for new nonces", "seed", seed)
+search:
+	for {
+		select {
+		case <-abort:
+			// Mining terminated, update stats and abort
+			logger.Trace("ethash nonce search aborted", "attempts", nonce-seed)
+			ethash.hashrate.Mark(attempts)
+			break search
+
+		default:
+			// We don't have to update hash rate on every nonce, so update after after 2^X nonces
+			attempts++
+			if (attempts % (1 << 15)) == 0 {
+				ethash.hashrate.Mark(attempts)
+				attempts = 0
+			}
+			// Compute the PoW value of this nonce
+			digest, result := frankomoto(hash, nonce)
+			if new(big.Int).SetBytes(result).Cmp(target) <= 0 {
+				// Correct nonce found, create a new header with it
+				header = types.CopyHeader(header)
+				header.Nonce = types.EncodeNonce(nonce)
+				header.MixDigest = common.BytesToHash(digest)
+
+				// Seal and return a block (if still needed)
+				select {
+				case found <- block.WithSeal(header):
+					logger.Trace("ethash nonce found and reported", "attempts", nonce-seed, "nonce", nonce)
+				case <-abort:
+					logger.Trace("ethash nonce found but discarded", "attempts", nonce-seed, "nonce", nonce)
+				}
+				break search
+			}
+			nonce++
+		}
+	}
+	// Datasets are unmapped in a finalizer. Ensure that the dataset stays live
+	// during sealing so it's not unmapped while being read.
+	//runtime.KeepAlive(dataset)
 }
 
 // This is the timeout for HTTP requests to notify external miners.
@@ -338,10 +405,11 @@ func (s *remoteSealer) loop() {
 // makeWork creates a work package for external miner.
 //
 // The work package consists of 3 strings:
-//   result[0], 32 bytes hex encoded current block header pow-hash
-//   result[1], 32 bytes hex encoded seed hash used for DAG
-//   result[2], 32 bytes hex encoded boundary condition ("target"), 2^256/difficulty
-//   result[3], hex encoded block number
+//
+//	result[0], 32 bytes hex encoded current block header pow-hash
+//	result[1], 32 bytes hex encoded seed hash used for DAG
+//	result[2], 32 bytes hex encoded boundary condition ("target"), 2^256/difficulty
+//	result[3], hex encoded block number
 func (s *remoteSealer) makeWork(block *types.Block) {
 	hash := s.ethash.SealHash(block.Header())
 	s.currentWork[0] = hash.Hex()
@@ -358,7 +426,16 @@ func (s *remoteSealer) makeWork(block *types.Block) {
 // new work to be processed.
 func (s *remoteSealer) notifyWork() {
 	work := s.currentWork
-	blob, _ := json.Marshal(work)
+
+	// Encode the JSON payload of the notification. When NotifyFull is set,
+	// this is the complete block header, otherwise it is a JSON array.
+	var blob []byte
+	if s.ethash.config.NotifyFull {
+		blob, _ = json.Marshal(s.currentBlock.Header())
+	} else {
+		blob, _ = json.Marshal(work)
+	}
+
 	s.reqWG.Add(len(s.notifyURLs))
 	for _, url := range s.notifyURLs {
 		go s.sendNotification(s.notifyCtx, url, blob, work)

@@ -69,7 +69,7 @@ This command will:
    (via the trailing `console` subcommand) through which you can invoke all official [`web3` methods](https://github.com/ethereum/wiki/wiki/JavaScript-API)
    as well as `gexp`'s own [management APIs](https://github.com/expanse-org/go-expanse/wiki/Management-APIs).
    This tool is optional and if you leave it out you can always attach to an already running
-   `geth` instance with `geth attach`.
+   `gexp` instance with `gexp attach`.
 
 ### A Full node on the Görli test network
 
@@ -129,7 +129,7 @@ it has certain extra overhead and is more susceptible to reorganization attacks 
 network's low difficulty/security.
 
 ```shell
-$ geth --ropsten console
+$ gexp --ropsten console
 ```
 
 *Note: Older Geth configurations store the Ropsten database in the `testnet` subdirectory.*
@@ -224,7 +224,8 @@ aware of and agree upon. This consists of a small JSON file (e.g. call it `genes
     "byzantiumBlock": 0,
     "constantinopleBlock": 0,
     "petersburgBlock": 0,
-    "istanbulBlock": 0
+    "istanbulBlock": 0,
+    "berlinBlock": 0
   },
   "alloc": {},
   "coinbase": "0x0000000000000000000000000000000000000000",
@@ -305,14 +306,14 @@ purposes as it can produce a stable stream of blocks at the correct intervals wi
 resources (consider running on a single thread, no need for multiple ones either). To start a Gexp
 instance for mining, run it with all your usual flags, extended by:
 
-```
-$ gexp <usual-flags> --mine --minerthreads=1 --etherbase=0x0000000000000000000000000000000000000000
+```shell
+$ gexp <usual-flags> --mine --miner.threads=1 --miner.etherbase=0x0000000000000000000000000000000000000000
 ```
 
 Which will start mining blocks and transactions on a single CPU thread, crediting all
-proceedings to the account specified by `--etherbase`. You can further tune the mining
-by changing the default gas limit blocks converge to (`--targetgaslimit`) and the price
-transactions are accepted at (`--gasprice`).
+proceedings to the account specified by `--miner.etherbase`. You can further tune the mining
+by changing the default gas limit blocks converge to (`--miner.targetgaslimit`) and the price
+transactions are accepted at (`--miner.gasprice`).
 
 ## Contribution
 

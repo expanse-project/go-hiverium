@@ -23,7 +23,7 @@ import (
 
 	"github.com/expanse-org/go-expanse/cmd/evm/internal/compiler"
 
-	cli "gopkg.in/urfave/cli.v1"
+	"gopkg.in/urfave/cli.v1"
 )
 
 var compileCommand = cli.Command{
