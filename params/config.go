@@ -70,8 +70,8 @@ var (
 
 		IstanbulBlock:    big.NewInt(3_050_000),
 		MuirGlacierBlock: nil,
-		BerlinBlock:      big.NewInt(8_470_000),
-		PhoenixBlock:     big.NewInt(8_470_000), // XIP5Block
+		BerlinBlock:      big.NewInt(8_500_000),
+		PhoenixBlock:     big.NewInt(8_500_000), // XIP5Block
 		LondonBlock:      nil,
 		Ethash:           new(EthashConfig),
 	}
