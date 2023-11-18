@@ -70,13 +70,6 @@ var GoerliBootnodes = []string{
 	"enode://a59e33ccd2b3e52d578f1fbd70c6f9babda2650f0760d6ff3b37742fdcdfdb3defba5d56d315b40c46b70198c7621e63ffa3f987389c7118634b0fefbbdfa7fd@51.15.119.157:40303",
 }
 
-// YoloV3Bootnodes are the enode URLs of the P2P bootstrap nodes running on the
-// YOLOv3 ephemeral test network.
-// TODO: Set Yolov3 bootnodes
-var YoloV3Bootnodes = []string{
-	"enode://9e1096aa59862a6f164994cb5cb16f5124d6c992cdbf4535ff7dea43ea1512afe5448dca9df1b7ab0726129603f1a3336b631e4d7a1a44c94daddd03241587f9@3.9.20.133:30303",
-}
-
 var V5Bootnodes = []string{
 	"enr:-J24QNp5DQKEMmOUMavO96CJPpD-15rKrkqmfPzH2JOD3hOzK6UFmQ9clpoOANcUriXqAnPLzKXwzoHmn4-b5Fx2eR-BiINldGjHxoQk81dAgIJpZIJ2NIJpcIRo7Ht2g2xlc8CJc2VjcDI1NmsxoQKXlt_hRqPXoXSjf06dakI8zI-0h0YlkoyBWw8c1xNdI4N0Y3CCpyKDdWRwgqci",
 }
@@ -84,7 +77,7 @@ var V5Bootnodes = []string{
 const dnsPrefix = "enrtree://AJJYVRBUC67IMBJFRJ4ZXOGNKHJK5BWVQF5746DSRG4BZ6CDE54CK@"
 
 // KnownDNSNetwork returns the address of a public DNS-based node list for the given
-// genesis hash and protocol. See https://github.com/ethereum/discv4-dns-lists for more
+// genesis hash and protocol. See https://github.com/expanse-org/discv4-dns-lists for more
 // information.
 func KnownDNSNetwork(genesis common.Hash, protocol string) string {
 	var net string

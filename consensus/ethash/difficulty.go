@@ -52,8 +52,7 @@ func CalcDifficultyFrontierU256(time uint64, parent *types.Header) *big.Int {
 		- num = block.number
 	*/
 
-	pDiff := uint256.NewInt()
-	pDiff.SetFromBig(parent.Difficulty) // pDiff: pdiff
+	pDiff, _ := uint256.FromBig(parent.Difficulty) // pDiff: pdiff
 	adjust := pDiff.Clone()
 	adjust.Rsh(adjust, difficultyBoundDivisor) // adjust: pDiff / 2048
 
@@ -82,7 +81,7 @@ func CalcDifficultyFrontierU256(time uint64, parent *types.Header) *big.Int {
 // parent block's time and difficulty. The calculation uses the Homestead rules.
 func CalcDifficultyHomesteadU256(time uint64, parent *types.Header) *big.Int {
 	/*
-		https://github.com/ethereum/EIPs/blob/master/EIPS/eip-2.md
+		https://github.com/expanse-org/EIPs/blob/master/EIPS/eip-2.md
 		Algorithm:
 		block_diff = pdiff + pdiff / 2048 * max(1 - (time - ptime) / 10, -99) + 2 ^ int((num / 100000) - 2))
 
@@ -96,8 +95,7 @@ func CalcDifficultyHomesteadU256(time uint64, parent *types.Header) *big.Int {
 		- num = block.number
 	*/
 
-	pDiff := uint256.NewInt()
-	pDiff.SetFromBig(parent.Difficulty) // pDiff: pdiff
+	pDiff, _ := uint256.FromBig(parent.Difficulty) // pDiff: pdiff
 	adjust := pDiff.Clone()
 	adjust.Rsh(adjust, difficultyBoundDivisor) // adjust: pDiff / 2048
 
@@ -139,7 +137,7 @@ func MakeDifficultyCalculatorU256(bombDelay *big.Int) func(time uint64, parent *
 	bombDelayFromParent := bombDelay.Uint64() - 1
 	return func(time uint64, parent *types.Header) *big.Int {
 		/*
-			https://github.com/ethereum/EIPs/issues/100
+			https://github.com/expanse-org/EIPs/issues/100
 			pDiff = parent.difficulty
 			BLOCK_DIFF_FACTOR = 9
 			a = pDiff + (pDiff // BLOCK_DIFF_FACTOR) * adj_factor

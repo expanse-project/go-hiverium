@@ -80,12 +80,10 @@ var dashboardContent = `
 								<ul class="nav side-menu">
 									{{if .EthstatsPage}}<li id="stats_menu"><a onclick="load('#stats')"><i class="fa fa-tachometer"></i> Network Stats</a></li>{{end}}
 									{{if .ExplorerPage}}<li id="explorer_menu"><a onclick="load('#explorer')"><i class="fa fa-database"></i> Block Explorer</a></li>{{end}}
-									{{if .WalletPage}}<li id="wallet_menu"><a onclick="load('#wallet')"><i class="fa fa-address-book-o"></i> Browser Wallet</a></li>{{end}}
 									{{if .FaucetPage}}<li id="faucet_menu"><a onclick="load('#faucet')"><i class="fa fa-bath"></i> Crypto Faucet</a></li>{{end}}
 									<li id="connect_menu"><a><i class="fa fa-plug"></i> Connect Yourself</a>
 										<ul id="connect_list" class="nav child_menu">
-											<li><a onclick="$('#connect_menu').removeClass('active'); $('#connect_list').toggle(); load('#gexp')">Go Expanse: Gexp</a></li>
-											<li><a onclick="$('#connect_menu').removeClass('active'); $('#connect_list').toggle(); load('#mist')">Go Expanse: Wallet & Mist</a></li>
+											<li><a onclick="$('#connect_menu').removeClass('active'); $('#connect_list').toggle(); load('#geth')">Go Expanse: Gexp</a></li>
 											<li><a onclick="$('#connect_menu').removeClass('active'); $('#connect_list').toggle(); load('#mobile')">Go Expanse: Android & iOS</a></li>{{if .Ethash}}
 											<li><a onclick="$('#connect_menu').removeClass('active'); $('#connect_list').toggle(); load('#other')">Other Expanse Clients</a></li>{{end}}
 										</ul>
@@ -181,58 +179,6 @@ var dashboardContent = `
 										</p>
 										<br/>
 										<p>You can download Gexp from <a href="https://gexp.expanse.tech/downloads/" target="about:blank">https://gexp.expanse.tech/downloads/</a>.</p>
-									</div>
-								</div>
-							</div>
-						</div>
-					</div>
-					<div id="mist" hidden style="padding: 16px;">
-						<div class="page-title">
-							<div class="title_left">
-								<h3>Connect Yourself &ndash; Go Expanse: Wallet &amp; Mist</h3>
-							</div>
-						</div>
-						<div class="clearfix"></div>
-						<div class="row">
-							<div class="col-md-6">
-								<div class="x_panel">
-									<div class="x_title">
-										<h2><i class="fa fa-credit-card" aria-hidden="true"></i> Desktop wallet <small>Interacts with accounts and contracts</small></h2>
-										<div class="clearfix"></div>
-									</div>
-									<div class="x_content">
-										<p>The Expanse Wallet is an <a href="https://electron.atom.io/" target="about:blank">Electron</a> based desktop application to manage your Expanse accounts and funds. Beside the usual account life-cycle operations you would expect to perform, the wallet also provides a means to send transactions from your accounts and to interact with smart contracts deployed on the network.</p>
-										<p>Under the hood the wallet is backed by a go-expanse full node, meaning that a mid range machine is assumed. Similarly, synchronization is based on <strong>fast-sync</strong>, which will download all blockchain data from the network and make it available to the wallet. Light nodes cannot currently fully back the wallet, but it's a target actively pursued.</p>
-										<br/>
-										<p>To connect with the Expanse Wallet, you'll need to initialize your private network first via Gexp as the wallet does not currently support calling Gexp directly. To initialize your local chain, download <a href="/{{.GethGenesis}}"><code>{{.GethGenesis}}</code></a> and run:
-											<pre>gexp --datadir=$HOME/.{{.Network}} init {{.GethGenesis}}</pre>
-										</p>
-										<p>With your local chain initialized, you can start the Expanse Wallet:
-											<pre>expansewallet --rpc $HOME/.{{.Network}}/gexp.ipc --node-networkid={{.NetworkID}} --node-datadir=$HOME/.{{.Network}}{{if .Ethstats}} --node-ethstats='{{.Ethstats}}'{{end}} --node-bootnodes={{.BootnodesFullFlat}}</pre>
-										<p>
-										<br/>
-										<p>You can download the Expanse Wallet from <a href="https://github.com/expanse-org/mist/releases" target="about:blank">https://github.com/expanse-org/mist/releases</a>.</p>
-									</div>
-								</div>
-							</div>
-							<div class="col-md-6">
-								<div class="x_panel">
-									<div class="x_title">
-										<h2><i class="fa fa-picture-o" aria-hidden="true"></i> Mist browser <small>Interacts with third party DApps</small></h2>
-										<div class="clearfix"></div>
-									</div>
-									<div class="x_content">
-										<p>The Mist browser is an <a href="https://electron.atom.io/" target="about:blank">Electron</a> based desktop application to load and interact with Expanse enabled third party web DApps. Beside all the functionality provided by the Expanse Wallet, Mist is an extended web-browser where loaded pages have access to the Expanse network via a web3.js provider, and may also interact with users' own accounts (given proper authorization and confirmation of course).</p>
-										<p>Under the hood the browser is backed by a go-expanse	full node, meaning that a mid range machine is assumed. Similarly, synchronization is based on <strong>fast-sync</strong>, which will download all blockchain data from the network and make it available to the wallet. Light nodes cannot currently fully back the wallet, but it's a target actively pursued.</p>
-										<br/>
-										<p>To connect with the Mist browser, you'll need to initialize your private network first via Gexp as Mist does not currently support calling Gexp directly. To initialize your local chain, download <a href="/{{.GethGenesis}}"><code>{{.GethGenesis}}</code></a> and run:
-											<pre>gexp --datadir=$HOME/.{{.Network}} init {{.GethGenesis}}</pre>
-										</p>
-										<p>With your local chain initialized, you can start Mist:
-											<pre>mist --rpc $HOME/.{{.Network}}/gexp.ipc --node-networkid={{.NetworkID}} --node-datadir=$HOME/.{{.Network}}{{if .Ethstats}} --node-ethstats='{{.Ethstats}}'{{end}} --node-bootnodes={{.BootnodesFullFlat}}</pre>
-										<p>
-										<br/>
-										<p>You can download the Mist browser from <a href="https://github.com/expanse-org/mist/releases" target="about:blank">https://github.com/expanse-org/mist/releases</a>.</p>
 									</div>
 								</div>
 							</div>
@@ -337,7 +283,7 @@ try! node?.start();
 											<pre>eth --config {{.CppGenesis}} --datadir $HOME/.{{.Network}} --peerset "{{.CppBootnodes}}"</pre>
 										</p>
 										<br/>
-										<p>You can find cpp-ethereum at <a href="https://github.com/ethereum/cpp-ethereum/" target="about:blank">https://github.com/ethereum/cpp-ethereum/</a>.</p>
+										<p>You can find cpp-ethereum at <a href="https://github.com/expanse-org/cpp-expanse-org/" target="about:blank">https://github.com/expanse-org/cpp-expanse-org/</a>.</p>
 									</div>
 								</div>
 							</div>
@@ -401,7 +347,7 @@ try! node?.start();
 											<pre>pyethapp -c eth.genesis="$(cat {{.PythonGenesis}})" -c eth.network_id={{.NetworkID}} -c data_dir=$HOME/.config/pyethapp/{{.Network}} -c discovery.bootstrap_nodes="[{{.PythonBootnodes}}]" -c eth.block.HOMESTEAD_FORK_BLKNUM={{.Homestead}} -c eth.block.ANTI_DOS_FORK_BLKNUM={{.Tangerine}} -c eth.block.SPURIOUS_DRAGON_FORK_BLKNUM={{.Spurious}} -c eth.block.METROPOLIS_FORK_BLKNUM={{.Byzantium}} -c eth.block.DAO_FORK_BLKNUM=18446744073709551615 run --console</pre>
 										</p>
 										<br/>
-										<p>You can find pyethapp at <a href="https://github.com/ethereum/pyethapp/" target="about:blank">https://github.com/ethereum/pyethapp/</a>.</p>
+										<p>You can find pyethapp at <a href="https://github.com/expanse-org/pyethapp/" target="about:blank">https://github.com/expanse-org/pyethapp/</a>.</p>
 									</div>
 								</div>
 							</div>
@@ -416,7 +362,7 @@ try! node?.start();
 										<div class="clearfix"></div>
 									</div>
 									<div style="display: inline-block; vertical-align: bottom; width: 623px; margin-top: 16px;">
-										<p>Puppeth is a tool to aid you in creating a new Expanse network down to the genesis block, bootnodes, signers, ethstats server, crypto faucet, wallet browsers, block explorer, dashboard and more; without the hassle that it would normally entail to manually configure all these services one by one.</p>
+										<p>Puppeth is a tool to aid you in creating a new Expanse network down to the genesis block, bootnodes, signers, ethstats server, crypto faucet,  block explorer, dashboard and more; without the hassle that it would normally entail to manually configure all these services one by one.</p>
 										<p>Puppeth uses ssh to dial in to remote servers, and builds its network components out of docker containers using docker-compose. The user is guided through the process via a command line wizard that does the heavy lifting and topology configuration automatically behind the scenes.</p>
 										<br/>
 										<p>Puppeth is distributed as part of the <a href="https://gexp.expanse.tech/downloads/" target="about:blank">Gexp &amp; Tools</a> bundles, but can also be installed separately via:<pre>go get github.com/expanse-org/go-expanse/cmd/puppeth</pre></p>
@@ -460,9 +406,6 @@ try! node?.start();
 						break;
 					case "#explorer":
 						url = "//{{.ExplorerPage}}";
-						break;
-					case "#wallet":
-						url = "//{{.WalletPage}}";
 						break;
 					case "#faucet":
 						url = "//{{.FaucetPage}}";
@@ -539,7 +482,7 @@ ADD puppeth.png /dashboard/puppeth.png
 
 EXPOSE 80
 
-CMD ["node", "/server.js"]
+CMD ["node", "./server.js"]
 `
 
 // dashboardComposefile is the docker-compose.yml file required to deploy and
@@ -587,7 +530,6 @@ func deployDashboard(client *sshClient, network string, conf *config, config *da
 		"VHost":        config.host,
 		"EthstatsPage": config.ethstats,
 		"ExplorerPage": config.explorer,
-		"WalletPage":   config.wallet,
 		"FaucetPage":   config.faucet,
 	})
 	files[filepath.Join(workdir, "docker-compose.yaml")] = composefile.Bytes()
@@ -615,7 +557,6 @@ func deployDashboard(client *sshClient, network string, conf *config, config *da
 		"NetworkTitle":      strings.Title(network),
 		"EthstatsPage":      config.ethstats,
 		"ExplorerPage":      config.explorer,
-		"WalletPage":        config.wallet,
 		"FaucetPage":        config.faucet,
 		"GethGenesis":       network + ".json",
 		"Bootnodes":         conf.bootnodes,
@@ -695,7 +636,6 @@ type dashboardInfos struct {
 
 	ethstats string
 	explorer string
-	wallet   string
 	faucet   string
 }
 
@@ -707,7 +647,6 @@ func (info *dashboardInfos) Report() map[string]string {
 		"Website listener port": strconv.Itoa(info.port),
 		"Ethstats service":      info.ethstats,
 		"Explorer service":      info.explorer,
-		"Wallet service":        info.wallet,
 		"Faucet service":        info.faucet,
 	}
 }
@@ -748,7 +687,6 @@ func checkDashboard(client *sshClient, network string) (*dashboardInfos, error) 
 		port:     port,
 		ethstats: infos.envvars["ETHSTATS_PAGE"],
 		explorer: infos.envvars["EXPLORER_PAGE"],
-		wallet:   infos.envvars["WALLET_PAGE"],
 		faucet:   infos.envvars["FAUCET_PAGE"],
 	}, nil
 }

@@ -10,7 +10,7 @@ In the LES protocol, there is an important concept called checkpoint. In simple 
 * Canonical hash trie root at checkpoint
 * Bloom trie root at checkpoint
 
-*For a more detailed introduction to checkpoint, please see the LES [spec](https://github.com/ethereum/devp2p/blob/master/caps/les.md).*
+*For a more detailed introduction to checkpoint, please see the LES [spec](https://github.com/expanse-org/devp2p/blob/master/caps/les.md).*
 
 Using this information, light clients can skip all historical block headers when synchronizing data and start synchronization from this checkpoint. Therefore, as long as the light client can obtain some latest and correct checkpoints, the amount of data and time for synchronization will be greatly reduced.
 
