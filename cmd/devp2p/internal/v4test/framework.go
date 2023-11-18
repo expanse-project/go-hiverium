@@ -60,10 +60,10 @@ func newTestEnv(remote string, listen1, listen2 string) *testenv {
 			ip = net.ParseIP("127.0.0.1")
 		}
 		if tcpPort = node.TCP(); tcpPort == 0 {
-			tcpPort = 30303
+			tcpPort = 42786
 		}
 		if udpPort = node.TCP(); udpPort == 0 {
-			udpPort = 30303
+			udpPort = 42786
 		}
 		node = enode.NewV4(node.Pubkey(), ip, tcpPort, udpPort)
 	}

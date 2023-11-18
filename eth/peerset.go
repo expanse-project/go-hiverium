@@ -42,7 +42,7 @@ var (
 
 	// errSnapWithoutEth is returned if a peer attempts to connect only on the
 	// snap protocol without advertizing the eth main protocol.
-	errSnapWithoutEth = errors.New("peer connected on snap without compatible eth support")
+	errSnapWithoutEth = errors.New("peer connected on snap without compatible exp support")
 )
 
 // peerSet represents the collection of active peers currently participating in

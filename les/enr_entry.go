@@ -38,7 +38,7 @@ type ethEntry struct {
 	Tail   []rlp.RawValue `rlp:"tail"`
 }
 
-func (ethEntry) ENRKey() string { return "eth" }
+func (ethEntry) ENRKey() string { return "exp" }
 
 // setupDiscovery creates the node discovery source for the eth protocol.
 func (eth *LightEthereum) setupDiscovery() (enode.Iterator, error) {

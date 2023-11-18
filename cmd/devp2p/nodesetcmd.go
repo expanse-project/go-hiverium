@@ -263,7 +263,7 @@ func snapFilter(args []string) (nodeFilter, error) {
 		var snap struct {
 			Tail []rlp.RawValue `rlp:"tail"`
 		}
-		return n.N.Load(enr.WithEntry("snap", &snap)) == nil
+		return n.N.Load(enr.WithEntry("xsnap", &snap)) == nil
 	}
 	return f, nil
 }

@@ -456,7 +456,7 @@ func NewSyncer(db ethdb.KeyValueStore) *Syncer {
 		peers:    make(map[string]SyncPeer),
 		peerJoin: new(event.Feed),
 		peerDrop: new(event.Feed),
-		rates:    msgrate.NewTrackers(log.New("proto", "snap")),
+		rates:    msgrate.NewTrackers(log.New("proto", "xsnap")),
 		update:   make(chan struct{}, 1),
 
 		accountIdlers:  make(map[string]struct{}),

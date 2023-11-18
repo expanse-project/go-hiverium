@@ -91,7 +91,7 @@ func (s *Suite) dial66() (*Conn, error) {
 	if err != nil {
 		return nil, fmt.Errorf("dial failed: %v", err)
 	}
-	conn.caps = append(conn.caps, p2p.Cap{Name: "eth", Version: 66})
+	conn.caps = append(conn.caps, p2p.Cap{Name: "exp", Version: 66})
 	conn.ourHighestProtoVersion = 66
 	return conn, nil
 }
@@ -131,7 +131,7 @@ func (c *Conn) handshake() error {
 		}
 		c.negotiateEthProtocol(msg.Caps)
 		if c.negotiatedProtoVersion == 0 {
-			return fmt.Errorf("unexpected eth protocol version")
+			return fmt.Errorf("unexpected exp protocol version")
 		}
 		return nil
 	default:
@@ -144,7 +144,7 @@ func (c *Conn) handshake() error {
 func (c *Conn) negotiateEthProtocol(caps []p2p.Cap) {
 	var highestEthVersion uint
 	for _, capability := range caps {
-		if capability.Name != "eth" {
+		if capability.Name != "exp" {
 			continue
 		}
 		if capability.Version > highestEthVersion && capability.Version <= c.ourHighestProtoVersion {
