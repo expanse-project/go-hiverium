@@ -20,7 +20,7 @@ jobs:
       env:
         - lint
       git:
-        submodules: false # avoid cloning ethereum/tests
+        submodules: false # avoid cloning expanse-org/tests
       script:
         - go run build/ci.go lint
 

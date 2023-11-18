@@ -66,7 +66,7 @@ var (
 		utils.NoUSBFlag,
 		utils.USBFlag,
 		utils.SmartCardDaemonPathFlag,
-		utils.OverrideBerlinFlag,
+		utils.OverrideLondonFlag,
 		utils.EthashCacheDirFlag,
 		utils.EthashCachesInMemoryFlag,
 		utils.EthashCachesOnDiskFlag,
@@ -118,7 +118,7 @@ var (
 		utils.MiningEnabledFlag,
 		utils.MinerThreadsFlag,
 		utils.MinerNotifyFlag,
-		utils.MinerGasTargetFlag,
+		utils.LegacyMinerGasTargetFlag,
 		utils.MinerGasLimitFlag,
 		utils.MinerGasPriceFlag,
 		utils.MinerEtherbaseFlag,
@@ -139,7 +139,6 @@ var (
 		utils.RopstenFlag,
 		utils.RinkebyFlag,
 		utils.GoerliFlag,
-		utils.YoloV3Flag,
 		utils.VMEnableDebugFlag,
 		utils.NetworkIdFlag,
 		utils.EthStatsURLFlag,
@@ -148,8 +147,7 @@ var (
 		utils.GpoBlocksFlag,
 		utils.GpoPercentileFlag,
 		utils.GpoMaxGasPriceFlag,
-		utils.EWASMInterpreterFlag,
-		utils.EVMInterpreterFlag,
+		utils.GpoIgnoreGasPriceFlag,
 		utils.MinerNotifyFullFlag,
 		configFileFlag,
 		utils.CatalystFlag,
@@ -197,6 +195,10 @@ var (
 		utils.MetricsInfluxDBUsernameFlag,
 		utils.MetricsInfluxDBPasswordFlag,
 		utils.MetricsInfluxDBTagsFlag,
+		utils.MetricsEnableInfluxDBV2Flag,
+		utils.MetricsInfluxDBTokenFlag,
+		utils.MetricsInfluxDBBucketFlag,
+		utils.MetricsInfluxDBOrganizationFlag,
 	}
 )
 
@@ -275,9 +277,6 @@ func prepare(ctx *cli.Context) {
 
 	case ctx.GlobalIsSet(utils.GoerliFlag.Name):
 		log.Info("Starting Gexp on Görli testnet...")
-
-	case ctx.GlobalIsSet(utils.YoloV3Flag.Name):
-		log.Info("Starting Gexp on YOLOv3 testnet...")
 
 	case ctx.GlobalIsSet(utils.DeveloperFlag.Name):
 		log.Info("Starting Gexp in ephemeral dev mode...")

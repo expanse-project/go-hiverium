@@ -24,6 +24,7 @@ import (
 	"github.com/expanse-org/go-expanse/common/hexutil"
 	"github.com/expanse-org/go-expanse/internal/ethapi"
 	"github.com/expanse-org/go-expanse/log"
+	"github.com/expanse-org/go-expanse/signer/core/apitypes"
 )
 
 type AuditLogger struct {
@@ -43,7 +44,7 @@ func (l *AuditLogger) New(ctx context.Context) (common.Address, error) {
 	return l.api.New(ctx)
 }
 
-func (l *AuditLogger) SignTransaction(ctx context.Context, args SendTxArgs, methodSelector *string) (*ethapi.SignTransactionResult, error) {
+func (l *AuditLogger) SignTransaction(ctx context.Context, args apitypes.SendTxArgs, methodSelector *string) (*ethapi.SignTransactionResult, error) {
 	sel := "<nil>"
 	if methodSelector != nil {
 		sel = *methodSelector

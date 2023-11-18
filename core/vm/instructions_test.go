@@ -96,7 +96,7 @@ func testTwoOperandOp(t *testing.T, tests []TwoOperandTestcase, opFn executionFu
 		env            = NewEVM(BlockContext{}, TxContext{}, nil, params.TestChainConfig, Config{})
 		stack          = newstack()
 		pc             = uint64(0)
-		evmInterpreter = env.interpreter.(*EVMInterpreter)
+		evmInterpreter = env.interpreter
 	)
 
 	for i, test := range tests {
@@ -132,7 +132,7 @@ func TestByteOp(t *testing.T) {
 }
 
 func TestSHL(t *testing.T) {
-	// Testcases from https://github.com/ethereum/EIPs/blob/master/EIPS/eip-145.md#shl-shift-left
+	// Testcases from https://github.com/expanse-org/EIPs/blob/master/EIPS/eip-145.md#shl-shift-left
 	tests := []TwoOperandTestcase{
 		{"0000000000000000000000000000000000000000000000000000000000000001", "01", "0000000000000000000000000000000000000000000000000000000000000002"},
 		{"0000000000000000000000000000000000000000000000000000000000000001", "ff", "8000000000000000000000000000000000000000000000000000000000000000"},
@@ -149,7 +149,7 @@ func TestSHL(t *testing.T) {
 }
 
 func TestSHR(t *testing.T) {
-	// Testcases from https://github.com/ethereum/EIPs/blob/master/EIPS/eip-145.md#shr-logical-shift-right
+	// Testcases from https://github.com/expanse-org/EIPs/blob/master/EIPS/eip-145.md#shr-logical-shift-right
 	tests := []TwoOperandTestcase{
 		{"0000000000000000000000000000000000000000000000000000000000000001", "00", "0000000000000000000000000000000000000000000000000000000000000001"},
 		{"0000000000000000000000000000000000000000000000000000000000000001", "01", "0000000000000000000000000000000000000000000000000000000000000000"},
@@ -167,7 +167,7 @@ func TestSHR(t *testing.T) {
 }
 
 func TestSAR(t *testing.T) {
-	// Testcases from https://github.com/ethereum/EIPs/blob/master/EIPS/eip-145.md#sar-arithmetic-shift-right
+	// Testcases from https://github.com/expanse-org/EIPs/blob/master/EIPS/eip-145.md#sar-arithmetic-shift-right
 	tests := []TwoOperandTestcase{
 		{"0000000000000000000000000000000000000000000000000000000000000001", "00", "0000000000000000000000000000000000000000000000000000000000000001"},
 		{"0000000000000000000000000000000000000000000000000000000000000001", "01", "0000000000000000000000000000000000000000000000000000000000000000"},
@@ -194,7 +194,7 @@ func TestAddMod(t *testing.T) {
 	var (
 		env            = NewEVM(BlockContext{}, TxContext{}, nil, params.TestChainConfig, Config{})
 		stack          = newstack()
-		evmInterpreter = NewEVMInterpreter(env, env.vmConfig)
+		evmInterpreter = NewEVMInterpreter(env, env.Config)
 		pc             = uint64(0)
 	)
 	tests := []struct {
@@ -234,7 +234,7 @@ func getResult(args []*twoOperandParams, opFn executionFunc) []TwoOperandTestcas
 		env         = NewEVM(BlockContext{}, TxContext{}, nil, params.TestChainConfig, Config{})
 		stack       = newstack()
 		pc          = uint64(0)
-		interpreter = env.interpreter.(*EVMInterpreter)
+		interpreter = env.interpreter
 	)
 	result := make([]TwoOperandTestcase, len(args))
 	for i, param := range args {
@@ -283,7 +283,7 @@ func opBenchmark(bench *testing.B, op executionFunc, args ...string) {
 	var (
 		env            = NewEVM(BlockContext{}, TxContext{}, nil, params.TestChainConfig, Config{})
 		stack          = newstack()
-		evmInterpreter = NewEVMInterpreter(env, env.vmConfig)
+		evmInterpreter = NewEVMInterpreter(env, env.Config)
 	)
 
 	env.interpreter = evmInterpreter
@@ -518,7 +518,7 @@ func TestOpMstore(t *testing.T) {
 		env            = NewEVM(BlockContext{}, TxContext{}, nil, params.TestChainConfig, Config{})
 		stack          = newstack()
 		mem            = NewMemory()
-		evmInterpreter = NewEVMInterpreter(env, env.vmConfig)
+		evmInterpreter = NewEVMInterpreter(env, env.Config)
 	)
 
 	env.interpreter = evmInterpreter
@@ -542,7 +542,7 @@ func BenchmarkOpMstore(bench *testing.B) {
 		env            = NewEVM(BlockContext{}, TxContext{}, nil, params.TestChainConfig, Config{})
 		stack          = newstack()
 		mem            = NewMemory()
-		evmInterpreter = NewEVMInterpreter(env, env.vmConfig)
+		evmInterpreter = NewEVMInterpreter(env, env.Config)
 	)
 
 	env.interpreter = evmInterpreter
@@ -563,16 +563,16 @@ func BenchmarkOpSHA3(bench *testing.B) {
 		env            = NewEVM(BlockContext{}, TxContext{}, nil, params.TestChainConfig, Config{})
 		stack          = newstack()
 		mem            = NewMemory()
-		evmInterpreter = NewEVMInterpreter(env, env.vmConfig)
+		evmInterpreter = NewEVMInterpreter(env, env.Config)
 	)
 	env.interpreter = evmInterpreter
 	mem.Resize(32)
 	pc := uint64(0)
-	start := uint256.NewInt()
+	start := new(uint256.Int)
 
 	bench.ResetTimer()
 	for i := 0; i < bench.N; i++ {
-		stack.pushN(*uint256.NewInt().SetUint64(32), *start)
+		stack.pushN(*uint256.NewInt(32), *start)
 		opSha3(&pc, evmInterpreter, &ScopeContext{mem, stack, nil})
 	}
 }
